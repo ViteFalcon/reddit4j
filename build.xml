@@ -1,0 +1,106 @@
+<?xml version="1.0" ?>
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="reddit4j" default="main">
+
+	<property name="build.dir" value="build" />
+	<property name="classes.dir" value="build/classes" />
+	<property name="src.dir" value="src" />
+	<property name="tst.dir" value="tst" />
+	
+	<property name="jar.file" value="${build.dir}/${ant.project.name}.jar"/>
+
+	<property name="ivy.install.version" value="2.1.0-rc2" />
+	<condition property="ivy.home" value="${env.IVY_HOME}">
+		<isset property="env.IVY_HOME" />
+	</condition>
+	<property name="ivy.home" value="${user.home}/.ant" />
+	<property name="ivy.jar.dir" value="${ivy.home}/lib" />
+	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+
+	<target name="main" depends="compile, jar" description="Main target">
+		<echo>
+            Standard build (no testing) complete. Jar: ${jar.file}
+        </echo>
+	</target>
+
+	<target name="release" depends="clean, init-ivy, resolve, compile, jar, test" description="Release">
+		<echo>
+			Release complete!  Jar: ${jar.file} 
+		</echo>
+	</target>
+
+	<target name="compile" depends="resolve" description="Compilation target">
+		<mkdir dir="${classes.dir}" />
+		<javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="ivy.path" />
+	</target>
+
+	<target name="jar" depends="compile" description="--> make a jar file for this project">
+		<mkdir dir="${build.dir}" />
+		<jar destfile="${jar.file}">
+			<fileset dir="${classes.dir}" />
+		</jar>
+	</target>
+
+	<target name="clean-all" depends="clean-cache, clean" />
+	
+	<target name="clean" description="--> clean the project">
+		<delete includeemptydirs="true" quiet="true">
+			<fileset dir="${build.dir}" />
+			<fileset dir="${classes.dir}" />
+			<fileset dir="${tst.build.dir}" />
+		</delete>
+	</target>
+
+	<target name="test-compile" depends="compile">
+		<javac srcdir="${tst.dir}" destdir="${classes.dir}" classpathref="ivy.path" />
+	</target>
+
+	<target name="test" depends="test-compile">
+		<junit printsummary="yes" haltonfailure="false" failureproperty="test.failed">
+			<formatter type="plain" usefile="false" />
+			<batchtest fork="yes">
+				<fileset dir="${tst.dir}">
+					<include name="**/*Test*.java" />
+				</fileset>
+			</batchtest>
+		<classpath>
+			<path refid="ivy.path"/>
+			<pathelement location="${classes.dir}"/>
+		</classpath>
+		</junit>
+		<fail if="test.failed" />
+	</target>
+
+
+	<!--Ivy miscellany -->
+
+	<target name="resolve" depends="init-ivy" description="--> retrieve dependencies with ivy">
+		<ivy:retrieve />
+		<ivy:cachepath pathid="ivy.path" />
+	</target>
+
+	<target name="download-ivy" unless="offline">
+
+		<mkdir dir="${ivy.jar.dir}" />
+		<!-- download Ivy from web site so that it can be used even without any special installation -->
+		<get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true" />
+	</target>
+
+	<target name="init-ivy" depends="download-ivy">
+		<!-- try to load ivy here from ivy home, in case the user has not already dropped
+              it into ant's lib dir (note that the latter copy will always take precedence).
+              We will not fail as long as local lib dir exists (it may be empty) and
+              ivy is in at least one of ant's lib dir or the local lib dir. -->
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.jar.dir}" includes="*.jar" />
+
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+	</target>
+	<target name="clean-ivy" description="--> clean the ivy installation">
+		<delete dir="${ivy.jar.dir}" />
+	</target>
+	<target name="clean-cache" depends="init-ivy" description="--> clean the ivy cache">
+		<ivy:cleancache />
+	</target>
+
+</project>
