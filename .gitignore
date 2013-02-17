@@ -7,3 +7,4 @@ javadoc
 .project
 .gitignore~
 README~
+*.class
