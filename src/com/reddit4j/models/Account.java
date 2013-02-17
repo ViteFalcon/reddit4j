@@ -1,20 +1,41 @@
 package com.reddit4j.models;
 
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.DateTime;
 
 public class Account extends RedditObject {
+	@JsonProperty("comment_karma")
 	private int commentKarma;
+
 	private DateTime created;
+
 	private DateTime createdUtc;
+
+	@JsonProperty("has_mail")
 	private Boolean hasMail;
+
+	@JsonProperty("has_mod_mail")
 	private Boolean hasModMail;
+
 	private String id;
-	private boolean is_friend;
-	private boolean is_gold;
-	private boolean is_mod;
-	private int link_karma;
+
+	@JsonProperty("is_friend")
+	private boolean isFriend;
+
+	@JsonProperty("is_gold")
+	private boolean isGold;
+
+	@JsonProperty("is_mod")
+	private boolean isMod;
+
+	@JsonProperty("link_karma")
+	private int linkKarma;
+
 	private String modhash;
+
 	private String name;
+
+	@JsonProperty("over_18")
 	private boolean over18;
 
 	/**
@@ -62,29 +83,29 @@ public class Account extends RedditObject {
 	/**
 	 * @return whether the logged-in user has this user set as a friend
 	 */
-	public boolean isIs_friend() {
-		return is_friend;
+	public boolean isFriend() {
+		return isFriend;
 	}
 
 	/**
 	 * @return the reddit gold status
 	 */
-	public boolean isIs_gold() {
-		return is_gold;
+	public boolean isGold() {
+		return isGold;
 	}
 
 	/**
 	 * @return whether this account moderates any subreddits
 	 */
-	public boolean isIs_mod() {
-		return is_mod;
+	public boolean isMod() {
+		return isMod;
 	}
 
 	/**
 	 * @return the user's link karma
 	 */
-	public int getLink_karma() {
-		return link_karma;
+	public int getLinkKarma() {
+		return linkKarma;
 	}
 
 	/**
