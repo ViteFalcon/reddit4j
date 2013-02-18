@@ -2,8 +2,7 @@ package com.reddit4j.clients;
 
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Queue;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -23,59 +22,53 @@ public class ThrottledHttpClient {
 
 	// TODO: Generalize this a bit. Right now these throttles are for reddit's
 	// rate-limiting, but this could easily be made generic
-	public static final int REQUEST_LIMIT_PER_PERIOD = 30;
-	public static final int REQUEST_LIMIT_TIME_PERIOD_MS = 60 * 1000;
-	private static final int TIMER_INTERVAL_MS = 2 * 1000;
-	private static final int TIMER_DELAY_MS = 0;
+	public static final int DEFAULT_REQUEST_LIMIT_PER_PERIOD = 30;
+	public static final int DEFAULT_REQUEST_LIMIT_TIME_PERIOD_MS = 60 * 1000;
 
-	private LinkedList<DateTime> sentRequestTimestamps = new LinkedList<DateTime>();
-	private Timer timer;
+	private Queue<DateTime> sentRequestTimestamps = new LinkedList<DateTime>();
 	private HttpClient httpClient;
+	private final int REQUEST_LIMIT_PER_PERIOD;
+	private final int REQUEST_LIMIT_TIME_PERIOD_MS;
 
 	public ThrottledHttpClient() {
 		this.httpClient = new HttpClient();
-		initTimer();
+		this.REQUEST_LIMIT_PER_PERIOD = DEFAULT_REQUEST_LIMIT_PER_PERIOD;
+		this.REQUEST_LIMIT_TIME_PERIOD_MS = DEFAULT_REQUEST_LIMIT_TIME_PERIOD_MS;
 	}
 
 	/*
 	 * For unit testing
 	 */
-	protected ThrottledHttpClient(HttpClient httpClient) {
+	protected ThrottledHttpClient(HttpClient httpClient, int requestLimit,
+			int periodMs) {
 		this.httpClient = httpClient;
-		initTimer();
+		this.REQUEST_LIMIT_PER_PERIOD = requestLimit;
+		this.REQUEST_LIMIT_TIME_PERIOD_MS = periodMs;
 	}
 
 	public int executeMethod(HttpMethod method) throws HttpException,
 			IOException {
-		if (sentRequestTimestamps.size() > REQUEST_LIMIT_PER_PERIOD) {
-			throw new ThrottlingException(sentRequestTimestamps.getFirst()
-					.plusMillis(REQUEST_LIMIT_TIME_PERIOD_MS));
+		drainQueue();
+		if (sentRequestTimestamps.size() >= REQUEST_LIMIT_PER_PERIOD) {
+			throw new ThrottlingException(sentRequestTimestamps.peek(),
+					REQUEST_LIMIT_TIME_PERIOD_MS + 1);
 		}
+		sentRequestTimestamps.add(DateTime.now());
 		return httpClient.executeMethod(method);
 	}
 
-	private void initTimer() {
-		timer = new Timer();
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				tick();
-			}
-		}, TIMER_DELAY_MS, TIMER_INTERVAL_MS);
-	}
-
 	/*
-	 * On each tick (TIMER_INTERVAL_MS apart), drain each request from the
-	 * request queue that is at least REQUEST_LIMIT_TIME_PERIOD_MS old.
+	 * When called, drain the queue of any messages older than
+	 * REQUEST_LIMIT_TIME_PERIOD_MS
 	 */
-	private synchronized void tick() {
+	private void drainQueue() {
 		while (sentRequestTimestamps.size() > 0) {
-			DateTime oldest = sentRequestTimestamps.getFirst();
+			DateTime oldest = sentRequestTimestamps.peek();
 			if (oldest == null
 					|| DateTime.now().compareTo(
 							oldest.plusMillis(REQUEST_LIMIT_TIME_PERIOD_MS)) > 0) {
 				// evict request from history
-				sentRequestTimestamps.removeFirst();
+				sentRequestTimestamps.remove();
 			} else {
 				break;
 			}
