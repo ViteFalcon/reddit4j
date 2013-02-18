@@ -19,7 +19,7 @@ import com.reddit4j.exceptions.ThrottlingException;
  * the next request will be allowed.
  * 
  */
-public class ThrottledHttpClient extends HttpClient {
+public class ThrottledHttpClient {
 
 	// TODO: Generalize this a bit. Right now these throttles are for reddit's
 	// rate-limiting, but this could easily be made generic
@@ -30,20 +30,28 @@ public class ThrottledHttpClient extends HttpClient {
 
 	private LinkedList<DateTime> sentRequestTimestamps = new LinkedList<DateTime>();
 	private Timer timer;
+	private HttpClient httpClient;
 
 	public ThrottledHttpClient() {
-		super();
+		this.httpClient = new HttpClient();
 		initTimer();
 	}
 
-	@Override
+	/*
+	 * For unit testing
+	 */
+	protected ThrottledHttpClient(HttpClient httpClient) {
+		this.httpClient = httpClient;
+		initTimer();
+	}
+
 	public int executeMethod(HttpMethod method) throws HttpException,
 			IOException {
 		if (sentRequestTimestamps.size() > REQUEST_LIMIT_PER_PERIOD) {
 			throw new ThrottlingException(sentRequestTimestamps.getFirst()
 					.plusMillis(REQUEST_LIMIT_TIME_PERIOD_MS));
 		}
-		return super.executeMethod(method);
+		return httpClient.executeMethod(method);
 	}
 
 	private void initTimer() {
