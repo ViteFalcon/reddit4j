@@ -1,94 +1,122 @@
 package com.reddit4j.models;
 
-public class Subreddit extends RedditObject {
-	private int accountsActive;
-	private String description;
-	private String desctiptionHtml;
-	private String displayName;
-	private String headerImg;
-	// array? headerTitle
-	private String headerTitle;
-	private boolean over18;
-	private String publicDescription;
-	private long subscribers;
-	private String title;
-	private String url;
+import org.codehaus.jackson.annotate.JsonProperty;
 
-	/**
-	 * @return number of users active in last 15 minutes
-	 */
-	public int getAccountsActive() {
-		return accountsActive;
-	}
+public class Subreddit extends Created {
 
-	/**
-	 * @return the sidebar text
-	 */
-	public String getDescription() {
-		return description;
-	}
+    @JsonProperty("accounts_active")
+    private int accountsActive;
 
-	/**
-	 * @return the sidebar text, escaped HTML format
-	 */
-	public String getDesctiptionHtml() {
-		return desctiptionHtml;
-	}
+    private String description;
 
-	/**
-	 * @return the human name of the subreddit
-	 */
-	public String getDisplayName() {
-		return displayName;
-	}
+    @JsonProperty("description_html")
+    private String desctiptionHtml;
 
-	/**
-	 * @return the full URL to the header image, or null
-	 */
-	public String getHeaderImg() {
-		return headerImg;
-	}
+    @JsonProperty("display_name")
+    private String displayName;
 
-	/**
-	 * @return description of header image shown on hover, or null
-	 */
-	public String getHeaderTitle() {
-		return headerTitle;
-	}
+    @JsonProperty("header_img")
+    private String headerImg;
 
-	/**
-	 * @return is_nsfw?
-	 */
-	public boolean isOver18() {
-		return over18;
-	}
+    @JsonProperty("header_title")
+    private String headerTitle;
 
-	/**
-	 * @return the description shown in subreddit search results?
-	 */
-	public String getPublicDescription() {
-		return publicDescription;
-	}
+    @JsonProperty("header_size")
+    private int[] headerSize;
 
-	/**
-	 * @return the number of redditors subscribed to this subreddit
-	 */
-	public long getSubscribers() {
-		return subscribers;
-	}
+    private boolean over18;
 
-	/**
-	 * @return the title of the main page
-	 */
-	public String getTitle() {
-		return title;
-	}
+    @JsonProperty("public_description")
+    private String publicDescription;
 
-	/**
-	 * @return the relative URL of the subreddit. Ex: "/r/pics/"
-	 */
-	public String getUrl() {
-		return url;
-	}
+    private long subscribers;
+
+    private String title;
+
+    private String url;
+
+    /**
+     * @return number of users active in last 15 minutes
+     */
+    public int getAccountsActive() {
+        return accountsActive;
+    }
+
+    /**
+     * @return the sidebar text
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @return the sidebar text, escaped HTML format
+     */
+    public String getDesctiptionHtml() {
+        return desctiptionHtml;
+    }
+
+    /**
+     * @return the human name of the subreddit
+     */
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    /**
+     * @return the full URL to the header image, or null
+     */
+    public String getHeaderImg() {
+        return headerImg;
+    }
+
+    /**
+     * @return description of header image shown on hover, or null
+     */
+    public String getHeaderTitle() {
+        return headerTitle;
+    }
+
+    /**
+     * @return array describing the header size
+     */
+    public int[] getHeaderSize() {
+        return headerSize;
+    }
+
+    /**
+     * @return is_nsfw?
+     */
+    public boolean isOver18() {
+        return over18;
+    }
+
+    /**
+     * @return the description shown in subreddit search results?
+     */
+    public String getPublicDescription() {
+        return publicDescription;
+    }
+
+    /**
+     * @return the number of redditors subscribed to this subreddit
+     */
+    public long getSubscribers() {
+        return subscribers;
+    }
+
+    /**
+     * @return the title of the main page
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * @return the relative URL of the subreddit. Ex: "/r/pics/"
+     */
+    public String getUrl() {
+        return url;
+    }
 
 }
