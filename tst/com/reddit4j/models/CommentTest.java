@@ -9,6 +9,8 @@ import java.io.IOException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import com.reddit4j.json.RedditObjectMapper;
@@ -82,5 +84,10 @@ public class CommentTest {
         assertNull(comment.getAuthorFlairCssClass());
         assertEquals("umbrae", comment.getAuthor());
         assertNull(comment.getApprovedBy());
+        assertEquals(new DateTime(2012, 12, 18, 13, 53, 38, DateTimeZone.UTC), comment.getCreated());
+        assertEquals(new DateTime(2012, 12, 18, 12, 53, 38, DateTimeZone.UTC), comment.getCreatedUtc());
+        assertEquals(7, comment.getUps());
+        assertEquals(0, comment.getDowns());
+        assertNull(comment.getLikes());
     }
 }
