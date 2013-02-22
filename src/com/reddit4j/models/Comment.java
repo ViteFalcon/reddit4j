@@ -39,9 +39,6 @@ public class Comment extends VotableCreated {
     @JsonProperty("link_id")
     private String linkId;
 
-    @JsonProperty("link_title")
-    private String linkTitle;
-
     @JsonProperty("num_reports")
     private Integer numReports;
 
@@ -134,13 +131,6 @@ public class Comment extends VotableCreated {
      */
     public String getLinkId() {
         return linkId;
-    }
-
-    /**
-     * @return the title of the link this comment is in
-     */
-    public String getLinkTitle() {
-        return linkTitle;
     }
 
     /**
