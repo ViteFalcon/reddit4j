@@ -35,7 +35,7 @@ public class CommentTest {
             + "amp;#39;ve got one from a couple years back when I was considering building a better screen reader. C"
             + "ould help you understand where sticky points are.&lt;/p&gt;\\n&lt;/div&gt;\", \"subreddit\": \"change"
             + "log\", \"name\": \"t1_c7ih8et\", \"created\": 1355838818.0, \"author_flair_text\": null, \"created_ut"
-            + "c\": 1355835218.0, \"num_reports\": null, \"ups\": 7}}";
+            + "c\": 1355835218.0, \"distinguished\": \"special\", \"num_reports\": null, \"ups\": 7}}";
 
     String commentText = "Hey spladug, would you be interested in a video screencapture of a blind user using reddit?"
             + " I've got one from a couple years back when I was considering building a better screen reader. Could h"
@@ -89,5 +89,6 @@ public class CommentTest {
         assertEquals(7, comment.getUps());
         assertEquals(0, comment.getDowns());
         assertNull(comment.getLikes());
+        assertEquals(DistinguishedStatus.SPECIAL, comment.getDistinguished());
     }
 }

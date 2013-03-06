@@ -7,10 +7,6 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-/**
- * @author Samuel Karp
- * 
- */
 public class Comment extends VotableCreated {
 
     @JsonProperty("approved_by")
@@ -51,6 +47,8 @@ public class Comment extends VotableCreated {
     private String subredditId;
 
     private RedditThing replies;
+
+    private DistinguishedStatus distinguished;
 
     public void setEdited(String seconds) {
         try {
@@ -165,5 +163,9 @@ public class Comment extends VotableCreated {
 
     public RedditThing getReplies() {
         return replies;
+    }
+
+    public DistinguishedStatus getDistinguished() {
+        return distinguished;
     }
 }
