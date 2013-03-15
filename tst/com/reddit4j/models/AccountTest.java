@@ -41,5 +41,17 @@ public class AccountTest {
         assertTrue(account.isMod());
         assertEquals("1wnj", account.getId());
         assertNull(account.hasModMail());
+        System.out.println(account.toString());
+    }
+
+    @Test
+    public void testAccountSerialization() throws JsonParseException, JsonMappingException, IOException {
+        RedditThing thing = mapper.readValue(accountJson, RedditThing.class);
+        Account account = (Account) thing.getData();
+        String mapperAccountJson = account.toString();
+        RedditObject mappedObject = mapper.readValue(mapperAccountJson, RedditObject.class);
+        assertEquals(Account.class, mappedObject.getClass());
+        Account mappedAccount = (Account) mappedObject;
+        assertEquals(account.toString(), mappedAccount.toString());
     }
 }

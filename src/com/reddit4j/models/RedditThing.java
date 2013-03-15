@@ -3,10 +3,12 @@
  */
 package com.reddit4j.models;
 
-/**
- * @author Samuel Karp
- * 
- */
+import java.io.IOException;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.reddit4j.json.RedditObjectMapper;
+
 public class RedditThing {
 
     private String kind;
@@ -22,6 +24,17 @@ public class RedditThing {
 
     public RedditObject getData() {
         return data;
+    }
+
+    @Override
+    public String toString() {
+        RedditObjectMapper mapper = RedditObjectMapper.getInstance();
+
+        try {
+            return mapper.writeValueAsString(this);
+        } catch (IOException e) {
+            return StringUtils.EMPTY;
+        }
     }
 
 }

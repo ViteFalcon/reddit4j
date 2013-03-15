@@ -49,4 +49,15 @@ public class RedditThingTest {
         Account account = (Account) thing.getData();
         assertEquals(false, account.isMod());
     }
+
+    @Test
+    public void testSerialization() throws JsonParseException, JsonMappingException, IOException {
+        String json = "{\"kind\":\"KIND\",\"data\":{\"is_mod\":\"false\"}}";
+        RedditThing thing = mapper.readValue(json, RedditThing.class);
+        String mapperThingJson = thing.toString();
+        RedditThing mappedThing = mapper.readValue(mapperThingJson, RedditThing.class);
+        assertEquals(RedditThing.class, mappedThing.getClass());
+        assertEquals(Account.class, mappedThing.getData().getClass());
+        assertEquals(thing.toString(), mappedThing.toString());
+    }
 }

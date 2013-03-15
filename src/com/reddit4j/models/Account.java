@@ -1,17 +1,10 @@
 package com.reddit4j.models;
 
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
-public class Account extends RedditObject {
+public class Account extends Created {
     @JsonProperty("comment_karma")
     private int commentKarma;
-
-    private DateTime created;
-
-    @JsonProperty("created_utc")
-    private DateTime createdUtc;
 
     @JsonProperty("has_mail")
     private Boolean hasMail;
@@ -40,33 +33,11 @@ public class Account extends RedditObject {
     @JsonProperty("over_18")
     private boolean over18;
 
-    public void setCreated(long seconds) {
-        this.created = new DateTime(seconds * 1000, DateTimeZone.UTC);
-    }
-
-    public void setCreatedUtc(long seconds) {
-        this.createdUtc = new DateTime(seconds * 1000, DateTimeZone.UTC);
-    }
-
     /**
      * @return the user's comment karma
      */
     public int getCommentKarma() {
         return commentKarma;
-    }
-
-    /**
-     * @return the registration date in epoch-seconds, local
-     */
-    public DateTime getCreated() {
-        return created;
-    }
-
-    /**
-     * @return the registration date in epoch-seconds, UTC
-     */
-    public DateTime getCreatedUtc() {
-        return new DateTime(createdUtc);
     }
 
     /**
@@ -93,6 +64,7 @@ public class Account extends RedditObject {
     /**
      * @return whether the logged-in user has this user set as a friend
      */
+    @JsonProperty("is_friend")
     public boolean isFriend() {
         return isFriend;
     }
@@ -100,6 +72,7 @@ public class Account extends RedditObject {
     /**
      * @return the reddit gold status
      */
+    @JsonProperty("is_gold")
     public boolean isGold() {
         return isGold;
     }
@@ -107,6 +80,7 @@ public class Account extends RedditObject {
     /**
      * @return whether this account moderates any subreddits
      */
+    @JsonProperty("is_mod")
     public boolean isMod() {
         return isMod;
     }
