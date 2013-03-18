@@ -1,34 +1,74 @@
 package com.reddit4j.models;
 
-import java.util.Date;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
+import com.reddit4j.json.DateTimeLongSerializer;
 
 public class Link extends VotableCreated {
 
     private String author;
+
+    @JsonProperty("author_flair_css_class")
     private String authorFlairCssClass;
+
+    @JsonProperty("author_flair_text")
     private String authorFlairText;
     private boolean clicked;
     private String domain;
     private boolean hidden;
+
+    @JsonProperty("is_self")
     private boolean isSelf;
+
+    @JsonProperty("link_flair_css_class")
     private String linkFlairCssClass;
+
+    @JsonProperty("link_flair_text")
     private String linkFlairText;
     private Object media; // ?????
+
+    @JsonProperty("media_embed")
     private Object mediaEmbed; // ????
+
+    @JsonProperty("num_comments")
     private int numComments;
+
+    @JsonProperty("over_18")
     private boolean over18;
     private String permalink;
     private boolean saved;
     private int score;
     private String selftext;
+
+    @JsonProperty("selftext_html")
     private String selftextHtml;
     private String subreddit;
+
+    @JsonProperty("subreddit_id")
     private String subredditId;
     private String thumbnail;
     private String title;
     private String url;
-    private Date edited; // TODO: change to DateTime
+    private DateTime edited;
     private DistinguishedStatus distinguished;
+
+    @JsonProperty("approved_by")
+    private String approvedBy;
+
+    @JsonProperty("banned_by")
+    private String bannedBy;
+
+    @JsonProperty("num_reports")
+    private int numReports;
+
+    protected void setEdited(Long seconds) {
+        if (seconds != null) {
+            this.edited = new DateTime(seconds * 1000, DateTimeZone.UTC);
+        }
+    }
 
     /**
      * @return the account name of the poster. null if this is a promotional
@@ -78,6 +118,7 @@ public class Link extends VotableCreated {
     /**
      * @return true if this link is a selfpost
      */
+    @JsonProperty("is_self")
     public boolean isSelf() {
         return isSelf;
     }
@@ -121,6 +162,7 @@ public class Link extends VotableCreated {
     /**
      * @return true if the post is tagged as NSFW. False if otherwise
      */
+    @JsonProperty("over_18")
     public boolean isOver18() {
         return over18;
     }
@@ -218,12 +260,25 @@ public class Link extends VotableCreated {
      *         the link has been edited and return null otherwise.
      *         https://github.com/reddit/reddit/issues/581
      */
-    public Date getEdited() {
+    @JsonSerialize(using = DateTimeLongSerializer.class)
+    public DateTime getEdited() {
         return edited;
     }
 
     public DistinguishedStatus getDistinguished() {
         return distinguished;
+    }
+
+    public String getApprovedBy() {
+        return approvedBy;
+    }
+
+    public String getBannedBy() {
+        return bannedBy;
+    }
+
+    public int getNumReports() {
+        return numReports;
     }
 
 }
