@@ -12,27 +12,25 @@ import org.junit.Test;
 
 public class RedditListingTest {
 
-	private ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper = new ObjectMapper();
 
-	@Test
-	public void testEmptyJson() throws JsonParseException,
-			JsonMappingException, IOException {
-		String json = "{}";
-		RedditListing listing = mapper.readValue(json, RedditListing.class);
-		assertNull(listing.getAfter());
-		assertNull(listing.getBefore());
-		assertNull(listing.getData());
-		assertNull(listing.getModhash());
-	}
+    @Test
+    public void testEmptyJson() throws JsonParseException, JsonMappingException, IOException {
+        String json = "{}";
+        RedditListing listing = mapper.readValue(json, RedditListing.class);
+        assertNull(listing.getAfter());
+        assertNull(listing.getBefore());
+        assertNull(listing.getData());
+        assertNull(listing.getModhash());
+    }
 
-	@Test
-	public void testNullListing() throws JsonParseException,
-			JsonMappingException, IOException {
-		String json = "{\"before\":\"BEFORE\",\"after\":\"AFTER\",\"modhash\":\"MODHASH\"}";
-		RedditListing listing = mapper.readValue(json, RedditListing.class);
-		assertNull(listing.getData());
-		assertEquals(listing.getAfter(), "AFTER");
-		assertEquals(listing.getBefore(), "BEFORE");
-		assertEquals(listing.getModhash(), "MODHASH");
-	}
+    @Test
+    public void testNullListing() throws JsonParseException, JsonMappingException, IOException {
+        String json = "{\"before\":\"BEFORE\",\"after\":\"AFTER\",\"modhash\":\"MODHASH\"}";
+        RedditListing listing = mapper.readValue(json, RedditListing.class);
+        assertNull(listing.getData());
+        assertEquals(listing.getAfter(), "AFTER");
+        assertEquals(listing.getBefore(), "BEFORE");
+        assertEquals(listing.getModhash(), "MODHASH");
+    }
 }

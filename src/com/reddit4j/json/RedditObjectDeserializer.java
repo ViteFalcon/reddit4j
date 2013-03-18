@@ -24,41 +24,41 @@ import com.reddit4j.models.Subreddit;
 
 public class RedditObjectDeserializer extends StdDeserializer<RedditObject> {
 
-	private Map<String, Class<? extends RedditObject>> registry = new HashMap<String, Class<? extends RedditObject>>() {
-		private static final long serialVersionUID = 1L;
+    private Map<String, Class<? extends RedditObject>> registry = new HashMap<String, Class<? extends RedditObject>>() {
+        private static final long serialVersionUID = 1L;
 
-		{
-			put("children", More.class);
-			put("link_id", Comment.class);
-			put("domain", Link.class);
-			put("public_description", Subreddit.class);
-			put("subject", Message.class);
-			put("is_mod", Account.class);
-		}
-	};
+        {
+            put("children", More.class);
+            put("link_id", Comment.class);
+            put("domain", Link.class);
+            put("public_description", Subreddit.class);
+            put("subject", Message.class);
+            put("is_mod", Account.class);
+        }
+    };
 
-	protected RedditObjectDeserializer() {
-		super(RedditObject.class);
-	}
+    protected RedditObjectDeserializer() {
+        super(RedditObject.class);
+    }
 
-	@Override
-	public RedditObject deserialize(JsonParser jp, DeserializationContext ctxt)
-			throws IOException, JsonProcessingException {
-		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
-		ObjectNode root = (ObjectNode) mapper.readTree(jp);
-		Class<? extends RedditObject> redditObjectClass = null;
-		Iterator<Entry<String, JsonNode>> elementsIterator = root.getFields();
-		while (elementsIterator.hasNext()) {
-			Entry<String, JsonNode> element = elementsIterator.next();
-			String name = element.getKey();
-			if (registry.containsKey(name)) {
-				redditObjectClass = registry.get(name);
-				break;
-			}
-		}
-		if (redditObjectClass == null) {
-			return null;
-		}
-		return mapper.readValue(root, redditObjectClass);
-	}
+    @Override
+    public RedditObject deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException,
+            JsonProcessingException {
+        ObjectMapper mapper = (ObjectMapper) jp.getCodec();
+        ObjectNode root = (ObjectNode) mapper.readTree(jp);
+        Class<? extends RedditObject> redditObjectClass = null;
+        Iterator<Entry<String, JsonNode>> elementsIterator = root.getFields();
+        while (elementsIterator.hasNext()) {
+            Entry<String, JsonNode> element = elementsIterator.next();
+            String name = element.getKey();
+            if (registry.containsKey(name)) {
+                redditObjectClass = registry.get(name);
+                break;
+            }
+        }
+        if (redditObjectClass == null) {
+            return null;
+        }
+        return mapper.readValue(root, redditObjectClass);
+    }
 }

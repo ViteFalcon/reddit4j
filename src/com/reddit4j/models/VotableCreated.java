@@ -1,6 +1,5 @@
 package com.reddit4j.models;
 
-
 public abstract class VotableCreated extends Created implements VotableInterface {
 
     private int ups;
