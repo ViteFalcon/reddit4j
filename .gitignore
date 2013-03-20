@@ -5,6 +5,5 @@ javadoc
 .settings
 .classpath
 .project
-.gitignore~
-README~
 *.class
+*.*~

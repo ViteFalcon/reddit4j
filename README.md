@@ -2,10 +2,7 @@ reddit4j
 
 Reddit4j is an unofficial Java library for the Reddit API.  Reddit4j is a work-in-progress and is not yet ready for consumption.
 
-Authors:
-Samuel Karp (sam@samuelkarp.com)
-Alex Carpenter
-
+[![Build Status](https://travis-ci.org/reddit4j/reddit4j.png?branch=master)](https://travis-ci.org/reddit4j/reddit4j)
 
 Dependencies:
 * Apache Ant
