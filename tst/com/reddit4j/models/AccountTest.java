@@ -41,7 +41,6 @@ public class AccountTest {
         assertTrue(account.isMod());
         assertEquals("1wnj", account.getId());
         assertNull(account.hasModMail());
-        System.out.println(account.toString());
     }
 
     @Test
