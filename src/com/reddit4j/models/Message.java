@@ -1,24 +1,55 @@
 package com.reddit4j.models;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 public class Message extends Created {
+
     private String author;
+
+    private String dest;
+
     private String body;
+
+    @JsonProperty("body_html")
     private String bodyHtml;
+
     private String context;
-    // Message???
+
     private String name;
-    private boolean newUnread;
+
+    @JsonProperty("parent_id")
     private String parentId;
+
     private String replies;
+
     private String subject;
+
     private String subreddit;
+
+    @JsonProperty("was_comment")
     private boolean wasComment;
+
+    @JsonProperty("first_message")
+    private int firstMessage;
+
+    @JsonProperty("first_message_name")
+    private String firstMessageName;
+
+    @JsonProperty("new")
+    private boolean isNew;
 
     /**
      * @return the author
      */
     public String getAuthor() {
         return author;
+    }
+
+    /**
+     * @return the recipient
+     */
+    public String getDest() {
+        return dest;
     }
 
     /**
@@ -47,13 +78,6 @@ public class Message extends Created {
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     * @return unread? not sure
-     */
-    public boolean isNewUnread() {
-        return newUnread;
     }
 
     /**
@@ -87,7 +111,19 @@ public class Message extends Created {
     /**
      * @return the wasComment
      */
-    public boolean isWasComment() {
+    public boolean wasComment() {
         return wasComment;
+    }
+
+    public int getFirstMessage() {
+        return firstMessage;
+    }
+
+    public String getFirstMessageName() {
+        return firstMessageName;
+    }
+
+    public boolean isNew() {
+        return isNew;
     }
 }
