@@ -1,0 +1,7 @@
+   =========================================================================
+   ==  NOTICE file for reddit4j library                                   ==
+   =========================================================================
+
+This file is part of the Java Reddit client library reddit4j. This project
+is licensed under the Apache License v 2.0, which is a permissive license.
+Please read LICENSE.txt file in this same directory for full license details.
