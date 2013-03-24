@@ -34,5 +34,6 @@
 		<dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.9.12" />
 		<dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.9.12" />
 		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.1.2" />
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.2" />
 	</dependencies>
 </ivy-module>

@@ -12,6 +12,8 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.reddit4j.exceptions.ThrottlingException;
 
@@ -31,6 +33,7 @@ public class ThrottledHttpClient {
     private HttpClient httpClient;
     private final int REQUEST_LIMIT_PER_PERIOD;
     private final int REQUEST_LIMIT_TIME_PERIOD_MS;
+    private final Logger logger = LoggerFactory.getLogger(ThrottledHttpClient.class);
 
     public ThrottledHttpClient() {
         this.httpClient = new HttpClient();
@@ -54,6 +57,8 @@ public class ThrottledHttpClient {
     public int executeMethod(HttpMethod method) throws HttpException, IOException {
         drainQueue();
         if (sentRequestTimestamps.size() >= REQUEST_LIMIT_PER_PERIOD) {
+            logger.info("Cannot make request, exceeds {} requests per {} ms", REQUEST_LIMIT_PER_PERIOD,
+                    REQUEST_LIMIT_TIME_PERIOD_MS);
             throw new ThrottlingException(sentRequestTimestamps.peek(), REQUEST_LIMIT_TIME_PERIOD_MS + 1);
         }
         sentRequestTimestamps.add(DateTime.now());
@@ -71,13 +76,13 @@ public class ThrottledHttpClient {
      */
     public HttpMethod get(String uri, NameValuePair[] queryParams) throws HttpException, IOException {
         HttpMethod method = new GetMethod(uri);
-        if(queryParams != null) {
+        if (queryParams != null) {
             method.setQueryString(queryParams);
         }
         executeMethod(method);
         return method;
     }
-    
+
     /**
      * HTTP POST request
      * 
@@ -88,17 +93,18 @@ public class ThrottledHttpClient {
      * @throws HttpException
      * @throws IOException
      */
-    public PostMethod post(String uri, NameValuePair[] queryParams, NameValuePair[] requestBody) throws HttpException, IOException {
+    public PostMethod post(String uri, NameValuePair[] queryParams, NameValuePair[] requestBody) throws HttpException,
+            IOException {
         PostMethod method = new PostMethod(uri);
 
         if (queryParams != null) {
-
             method.setQueryString(queryParams);
         }
-        if (requestBody != null) {
 
+        if (requestBody != null) {
             method.setRequestBody(requestBody);
         }
+
         executeMethod(method);
         return method;
     }

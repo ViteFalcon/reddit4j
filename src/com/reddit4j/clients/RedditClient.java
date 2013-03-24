@@ -8,6 +8,8 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.NameValuePair;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.reddit4j.json.RedditObjectMapper;
 import com.reddit4j.models.RedditThing;
@@ -18,8 +20,9 @@ public class RedditClient {
     public static final String DEFAULT_REDDIT_ENDPOINT = "reddit.com";
 
     private final ThrottledHttpClient httpClient;
-    private final RedditObjectMapper redditObjectMapper = RedditObjectMapper
-            .getInstance();
+    private final RedditObjectMapper redditObjectMapper = RedditObjectMapper.getInstance();
+
+    private final Logger logger = LoggerFactory.getLogger(RedditClient.class);
 
     public RedditClient() {
         HostConfiguration h = new HostConfiguration();
@@ -34,9 +37,8 @@ public class RedditClient {
         this.httpClient = httpClient;
     }
 
-    private RedditThing get(String uri, NameValuePair[] queryParams)
-            throws JsonParseException, JsonMappingException, HttpException,
-            IOException {
+    private RedditThing get(String uri, NameValuePair[] queryParams) throws JsonParseException, JsonMappingException,
+            HttpException, IOException {
         HttpMethod method = null;
         String response = null;
         try {
@@ -50,8 +52,8 @@ public class RedditClient {
         return redditObjectMapper.readValue(response, RedditThing.class);
     }
 
-    private RedditThing post(String uri, NameValuePair[] queryParams,
-            NameValuePair[] requestBody) throws HttpException, IOException {
+    private RedditThing post(String uri, NameValuePair[] queryParams, NameValuePair[] requestBody)
+            throws HttpException, IOException {
         HttpMethod method = null;
         String response = null;
         try {
@@ -68,19 +70,15 @@ public class RedditClient {
     // All of the methods below here are Reddit's exposed APIs. Within this
     // library they should be accessed through layers of abstraction
 
-    public Subreddit getSubredditInfo(String subreddit)
-            throws JsonParseException, JsonMappingException, HttpException,
+    public Subreddit getSubredditInfo(String subreddit) throws JsonParseException, JsonMappingException, HttpException,
             IOException {
-        return (Subreddit) get(String.format("/r/%s/about.json", subreddit),
-                null).getData();
+        return (Subreddit) get(String.format("/r/%s/about.json", subreddit), null).getData();
     }
 
-    protected void clearSessions(String currentPassword, String destinationUrl,
-            String modhash) throws HttpException, IOException {
-        NameValuePair[] requestBody = new NameValuePair[] {
-                new NameValuePair("curpass", currentPassword),
-                new NameValuePair("dest", destinationUrl),
-                new NameValuePair("uh", modhash), };
+    protected void clearSessions(String currentPassword, String destinationUrl, String modhash) throws HttpException,
+            IOException {
+        NameValuePair[] requestBody = new NameValuePair[] { new NameValuePair("curpass", currentPassword),
+                new NameValuePair("dest", destinationUrl), new NameValuePair("uh", modhash), };
         post("/api/clear_sessions", null, requestBody);
     }
 
@@ -105,11 +103,11 @@ public class RedditClient {
         try {
             return get("/api/v1/me", null);
         } catch (JsonParseException e) {
-            //TODO log
-        } catch(JsonMappingException e) {
-            //TODO log
+            logger.error("Could not parse response", e);
+        } catch (JsonMappingException e) {
+            logger.error("Could not map response to RedditThing object", e);
         }
-            return null;
+        return null;
     }
 
     protected void addDeveloper() {
