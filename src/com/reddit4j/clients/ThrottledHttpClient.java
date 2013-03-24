@@ -71,7 +71,9 @@ public class ThrottledHttpClient {
      */
     public HttpMethod get(String uri, NameValuePair[] queryParams) throws HttpException, IOException {
         HttpMethod method = new GetMethod(uri);
-        method.setQueryString(queryParams);
+        if(queryParams != null) {
+            method.setQueryString(queryParams);
+        }
         executeMethod(method);
         return method;
     }
@@ -88,9 +90,15 @@ public class ThrottledHttpClient {
      */
     public PostMethod post(String uri, NameValuePair[] queryParams, NameValuePair[] requestBody) throws HttpException, IOException {
         PostMethod method = new PostMethod(uri);
-        
-        method.setQueryString(queryParams);
-        method.setRequestBody(requestBody);
+
+        if (queryParams != null) {
+
+            method.setQueryString(queryParams);
+        }
+        if (requestBody != null) {
+
+            method.setRequestBody(requestBody);
+        }
         executeMethod(method);
         return method;
     }
