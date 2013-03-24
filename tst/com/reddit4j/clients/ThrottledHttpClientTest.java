@@ -78,7 +78,7 @@ public class ThrottledHttpClientTest {
 
     @Test
     public void testGet() throws HttpException, IOException {
-        throttledHttpClient.get("test!");
+        throttledHttpClient.get("test!", null);
         verify(mockHttpClient, times(1)).executeMethod(any(GetMethod.class));
     }
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.NameValuePair;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
@@ -17,7 +18,8 @@ public class RedditClient {
     public static final String DEFAULT_REDDIT_ENDPOINT = "reddit.com";
 
     private final ThrottledHttpClient httpClient;
-    private final RedditObjectMapper redditObjectMapper = RedditObjectMapper.getInstance();
+    private final RedditObjectMapper redditObjectMapper = RedditObjectMapper
+            .getInstance();
 
     public RedditClient() {
         HostConfiguration h = new HostConfiguration();
@@ -32,34 +34,28 @@ public class RedditClient {
         this.httpClient = httpClient;
     }
 
-    // I think we should explicitly not swallow these exceptions. I'd be open to
-    // catch (Exception e) { throw e; } finally {method.releaseConnection();}.
-    // Alternately, we could catch these and throw a new RedditException with an
-    // appropriate message, but still make it a checked exception exposed to the
-    // users of this library. Leaving this in, but marking it as @Deprecated so
-    // that Alex can comment or remove it...
-    @Deprecated
-    private int tryRequest(HttpMethod method) {
-
-        int statusCode = 0;
-        try {
-            statusCode = httpClient.executeMethod(method);
-        } catch (HttpException e) {
-            e.printStackTrace();
-            statusCode = -1;
-        } catch (IOException e) {
-            e.printStackTrace();
-            statusCode = -1;
-        }
-        method.releaseConnection();
-        return statusCode;
-    }
-
-    private RedditThing get(String uri) throws JsonParseException, JsonMappingException, HttpException, IOException {
+    private RedditThing get(String uri, NameValuePair[] queryParams)
+            throws JsonParseException, JsonMappingException, HttpException,
+            IOException {
         HttpMethod method = null;
         String response = null;
         try {
-            method = httpClient.get(uri);
+            method = httpClient.get(uri, queryParams);
+            response = method.getResponseBodyAsString();
+        } finally {
+            if (method != null) {
+                method.releaseConnection();
+            }
+        }
+        return redditObjectMapper.readValue(response, RedditThing.class);
+    }
+
+    private RedditThing post(String uri, NameValuePair[] queryParams,
+            NameValuePair[] requestBody) throws HttpException, IOException {
+        HttpMethod method = null;
+        String response = null;
+        try {
+            method = httpClient.post(uri, queryParams, requestBody);
             response = method.getResponseBodyAsString();
         } finally {
             if (method != null) {
@@ -72,28 +68,24 @@ public class RedditClient {
     // All of the methods below here are Reddit's exposed APIs. Within this
     // library they should be accessed through layers of abstraction
 
-    public Subreddit getSubredditInfo(String subreddit) throws JsonParseException, JsonMappingException, HttpException,
+    public Subreddit getSubredditInfo(String subreddit)
+            throws JsonParseException, JsonMappingException, HttpException,
             IOException {
-        return (Subreddit) get(String.format("/r/%s/about.json", subreddit)).getData();
+        return (Subreddit) get(String.format("/r/%s/about.json", subreddit),
+                null).getData();
     }
 
-    protected void clearSessions() {
-        // post /api/clear_sessions
+    protected void clearSessions(String currentPassword, String destinationUrl,
+            String modhash) throws HttpException, IOException {
+        NameValuePair[] requestBody = new NameValuePair[] {
+                new NameValuePair("curpass", currentPassword),
+                new NameValuePair("dest", destinationUrl),
+                new NameValuePair("uh", modhash), };
+        post("/api/clear_sessions", null, requestBody);
     }
 
     protected void deleteUser() {
         // post /api/delete_user
-    }
-
-    // TODO: This is a legacy authentication scheme - I think it might be
-    // worthwhile to remove it entirely. Current authentication scheme is using
-    // OAuth
-    @Deprecated
-    protected void login(String username, String password, boolean persistSession) {
-        // post /api/login
-        // passwd = password
-        // user = username
-        // rem = persistSession
     }
 
     protected void getInfoAboutMe() {
@@ -108,8 +100,16 @@ public class RedditClient {
         // POST /api/update
     }
 
-    protected void getOAuthIdentity() {
+    protected RedditThing getOAuthIdentity() throws HttpException, IOException {
         // GET /api/v1/me
+        try {
+            return get("/api/v1/me", null);
+        } catch (JsonParseException e) {
+            //TODO log
+        } catch(JsonMappingException e) {
+            //TODO log
+        }
+            return null;
     }
 
     protected void addDeveloper() {

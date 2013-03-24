@@ -8,7 +8,9 @@ import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.joda.time.DateTime;
 
 import com.reddit4j.exceptions.ThrottlingException;
@@ -67,8 +69,28 @@ public class ThrottledHttpClient {
      * @throws HttpException
      * @throws IOException
      */
-    public HttpMethod get(String uri) throws HttpException, IOException {
+    public HttpMethod get(String uri, NameValuePair[] queryParams) throws HttpException, IOException {
         HttpMethod method = new GetMethod(uri);
+        method.setQueryString(queryParams);
+        executeMethod(method);
+        return method;
+    }
+    
+    /**
+     * HTTP POST request
+     * 
+     * @param uri
+     * @param queryParams
+     * @param requestBody
+     * @return a PostMethod object. Remember to call method.releaseConnection()
+     * @throws HttpException
+     * @throws IOException
+     */
+    public PostMethod post(String uri, NameValuePair[] queryParams, NameValuePair[] requestBody) throws HttpException, IOException {
+        PostMethod method = new PostMethod(uri);
+        
+        method.setQueryString(queryParams);
+        method.setRequestBody(requestBody);
         executeMethod(method);
         return method;
     }

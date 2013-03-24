@@ -34,7 +34,7 @@ public class RedditClientTest {
 
     @Test
     public void testGetSubredditInfo() throws HttpException, IOException {
-        when(mockThrottledHttpClient.get("/r/reddit4j/about.json")).thenReturn(mockHttpMethod);
+        when(mockThrottledHttpClient.get("/r/reddit4j/about.json", null)).thenReturn(mockHttpMethod);
         when(mockHttpMethod.getResponseBodyAsString()).thenReturn("{\"data\":{\"public_description\":\"Yay!\"}}");
         Subreddit subreddit = redditClient.getSubredditInfo("reddit4j");
         assertEquals("Yay!", subreddit.getPublicDescription());
