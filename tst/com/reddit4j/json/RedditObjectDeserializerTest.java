@@ -61,53 +61,62 @@ public class RedditObjectDeserializerTest {
 
     @Test
     public void testMore() throws JsonProcessingException, IOException {
-        setOneField("children");
+        setFields("children");
         deserializer.deserialize(mockJsonParser, mockDeserializationContext);
         verify(mockObjectMapper, times(1)).readValue(mockObjectNode, More.class);
     }
 
     @Test
     public void testComment() throws JsonProcessingException, IOException {
-        setOneField("link_id");
+        setFields("link_id");
         deserializer.deserialize(mockJsonParser, mockDeserializationContext);
         verify(mockObjectMapper, times(1)).readValue(mockObjectNode, Comment.class);
     }
 
     @Test
     public void testLink() throws JsonProcessingException, IOException {
-        setOneField("domain");
+        setFields("domain");
         deserializer.deserialize(mockJsonParser, mockDeserializationContext);
         verify(mockObjectMapper, times(1)).readValue(mockObjectNode, Link.class);
     }
 
     @Test
     public void testSubreddit() throws JsonProcessingException, IOException {
-        setOneField("public_description");
+        setFields("public_description");
         deserializer.deserialize(mockJsonParser, mockDeserializationContext);
         verify(mockObjectMapper, times(1)).readValue(mockObjectNode, Subreddit.class);
     }
 
     @Test
     public void testMessage() throws JsonProcessingException, IOException {
-        setOneField("subject");
+        setFields("subject");
         deserializer.deserialize(mockJsonParser, mockDeserializationContext);
         verify(mockObjectMapper, times(1)).readValue(mockObjectNode, Message.class);
     }
 
     @Test
     public void testAccount() throws JsonProcessingException, IOException {
-        setOneField("is_mod");
+        setFields("is_mod");
         deserializer.deserialize(mockJsonParser, mockDeserializationContext);
         verify(mockObjectMapper, times(1)).readValue(mockObjectNode, Account.class);
     }
 
-    private void setOneField(final String field) {
+    @Test
+    public void testAccount_UnknownField() throws JsonProcessingException, IOException {
+        setFields("is_mod", "UNKNOWN_FIELD");
+        deserializer.deserialize(mockJsonParser, mockDeserializationContext);
+        verify(mockObjectMapper, times(1)).readValue(mockObjectNode, Account.class);
+    }
+
+    private void setFields(final String... fields) {
         @SuppressWarnings("serial")
-        Map<String, JsonNode> fields = new HashMap<String, JsonNode>() {
+        Map<String, JsonNode> fieldsMap = new HashMap<String, JsonNode>() {
             {
-                put(field, null);
+                for (String field : fields) {
+                    put(field, null);
+                }
             }
         };
-        when(mockObjectNode.getFields()).thenReturn(fields.entrySet().iterator());
+        when(mockObjectNode.getFields()).thenReturn(fieldsMap.entrySet().iterator());
     }
 }

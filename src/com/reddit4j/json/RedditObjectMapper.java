@@ -18,6 +18,7 @@ public class RedditObjectMapper extends org.codehaus.jackson.map.ObjectMapper {
             }
         });
         configure(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        getDeserializationConfig().addHandler(new RedditDeserializationProblemHandler());
     }
 
     public static RedditObjectMapper getInstance() {
