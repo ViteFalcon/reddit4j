@@ -11,3 +11,4 @@ Dependencies:
 * Jackson
 * Junit
 * Mockito
+* Slf4j
