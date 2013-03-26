@@ -18,10 +18,9 @@ import org.slf4j.LoggerFactory;
 import com.reddit4j.exceptions.ThrottlingException;
 
 /**
- * Number-of-requests-per-period throttling on HttpClient. Throws a
- * {@code ThrottlingException} when too many requests have been tried per
- * period. The {@code ThrottlingException} contains the {@code DateTime} when
- * the next request will be allowed.
+ * Number-of-requests-per-period throttling on HttpClient. Throws a {@code ThrottlingException} when too many requests
+ * have been tried per period. The {@code ThrottlingException} contains the {@code DateTime} when the next request will
+ * be allowed.
  * 
  */
 public class ThrottledHttpClient {
@@ -69,8 +68,7 @@ public class ThrottledHttpClient {
      * HTTP GET request
      * 
      * @param uri
-     * @return a HttpMethod object. Remember to call method.releaseConnection()
-     *         when you're done!
+     * @return a HttpMethod object. Remember to call method.releaseConnection() when you're done!
      * @throws HttpException
      * @throws IOException
      */
@@ -87,19 +85,15 @@ public class ThrottledHttpClient {
      * HTTP POST request
      * 
      * @param uri
-     * @param queryParams
      * @param requestBody
      * @return a PostMethod object. Remember to call method.releaseConnection()
      * @throws HttpException
      * @throws IOException
      */
-    public PostMethod post(String uri, NameValuePair[] queryParams, NameValuePair[] requestBody) throws HttpException,
-            IOException {
+    public PostMethod post(String uri, NameValuePair[] requestBody) throws HttpException,
+        IOException {
         PostMethod method = new PostMethod(uri);
 
-        if (queryParams != null) {
-            method.setQueryString(queryParams);
-        }
 
         if (requestBody != null) {
             method.setRequestBody(requestBody);
@@ -110,8 +104,7 @@ public class ThrottledHttpClient {
     }
 
     /*
-     * When called, drain the queue of any messages older than
-     * REQUEST_LIMIT_TIME_PERIOD_MS
+     * When called, drain the queue of any messages older than REQUEST_LIMIT_TIME_PERIOD_MS
      */
     private void drainQueue() {
         while (sentRequestTimestamps.size() > 0) {
