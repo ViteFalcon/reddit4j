@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.reddit4j.json.RedditObjectMapper;
 import com.reddit4j.models.RedditThing;
 import com.reddit4j.models.Subreddit;
+import com.reddit4j.types.SearchQuery;
 import com.reddit4j.utils.HttpClientUtils;
 
 public class RedditClient {
@@ -345,8 +346,10 @@ public class RedditClient {
     }
 
     // search
-    protected void search() {
-        // GET /search.json
+    protected RedditThing search(SearchQuery query) throws JsonParseException, JsonMappingException, HttpException, IOException {
+        // TODO swallow Json exceptions
+        // TODO use /r/subredditname/search.json when limiting search to a subreddit
+        return get("/search.json", HttpClientUtils.buildSearchParameters(query));
     }
 
     // subreddits
