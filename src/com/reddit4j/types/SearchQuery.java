@@ -11,10 +11,8 @@ public class SearchQuery {
     private Integer limit;
     private Boolean restrictSubreddit;
     private String target; // still not sure what this is...    
+    private Integer count; 
     
-
-    private Integer count; // this seems to change the search results such that their counting scheme starts right after
-                           // this number. Very strange. Ignoring.
     public SearchQuery(String query) {
         this.query = query;
     }

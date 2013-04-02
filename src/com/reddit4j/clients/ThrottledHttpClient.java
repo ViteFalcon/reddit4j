@@ -57,7 +57,7 @@ public class ThrottledHttpClient {
         drainQueue();
         if (sentRequestTimestamps.size() >= REQUEST_LIMIT_PER_PERIOD) {
             logger.info("Cannot make request, exceeds {} requests per {} ms", REQUEST_LIMIT_PER_PERIOD,
-                    REQUEST_LIMIT_TIME_PERIOD_MS);
+                REQUEST_LIMIT_TIME_PERIOD_MS);
             throw new ThrottlingException(sentRequestTimestamps.peek(), REQUEST_LIMIT_TIME_PERIOD_MS + 1);
         }
         sentRequestTimestamps.add(DateTime.now());
@@ -90,10 +90,8 @@ public class ThrottledHttpClient {
      * @throws HttpException
      * @throws IOException
      */
-    public PostMethod post(String uri, NameValuePair[] requestBody) throws HttpException,
-        IOException {
+    public PostMethod post(String uri, NameValuePair[] requestBody) throws HttpException, IOException {
         PostMethod method = new PostMethod(uri);
-
 
         if (requestBody != null) {
             method.setRequestBody(requestBody);

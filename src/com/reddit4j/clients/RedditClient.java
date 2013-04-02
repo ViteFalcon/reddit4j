@@ -1,5 +1,6 @@
 package com.reddit4j.clients;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -18,7 +19,7 @@ import com.reddit4j.json.RedditObjectMapper;
 import com.reddit4j.models.RedditThing;
 import com.reddit4j.models.Subreddit;
 import com.reddit4j.types.SearchQuery;
-import com.reddit4j.utils.HttpClientUtils;
+import com.reddit4j.utils.RedditClientUtils;
 
 public class RedditClient {
 
@@ -74,7 +75,7 @@ public class RedditClient {
         }
         return redditObjectMapper.readValue(response, RedditThing.class);
     }
-
+    
     // All of the methods below here are Reddit's exposed APIs. Within this
     // library they should be accessed through layers of abstraction
 
@@ -94,8 +95,16 @@ public class RedditClient {
         // post /api/delete_user
     }
 
-    protected void getInfoAboutMe() {
+    protected RedditThing getInfoAboutMe() throws HttpException, IOException {
         // GET /api/me.json
+        try {
+            return get("/api/me.json", null);
+        } catch(JsonParseException e) {
+            logger.error("Could not parse response", e);
+        } catch (JsonMappingException e) {
+            logger.error("Could not map response to RedditThing object", e);
+        }
+        return null;
     }
 
     protected void register() {
@@ -117,23 +126,26 @@ public class RedditClient {
         return null;
     }
 
-    protected void addDeveloper() {
-        // POST /api/adddeveloper
+    // apps
+    
+    protected void addDeveloper(String clientId, String modhash, String user) throws HttpException, IOException {
+        post("/api/adddeveloper", RedditClientUtils.buildAppPostParameters(clientId, modhash, user));
     }
 
-    protected void removeDeveloper() {
-        // POST /api/removedeveloper
+    protected void removeDeveloper(String clientId, String modhash, String user) throws HttpException, IOException {
+        post("/api/removedeveloper", RedditClientUtils.buildAppPostParameters(clientId, modhash, user));
     }
 
-    protected void deleteApp() {
-        // POST /api/deleteapp
+    protected void deleteApp(String clientId, String modhash) throws HttpException, IOException {
+        post("/api/deleteapp", RedditClientUtils.buildAppPostParameters(clientId, modhash, null));
     }
 
-    protected void revokeApp() {
-        // POST /api/revokeapp
+    protected void revokeApp(String clientId, String modhash) throws HttpException, IOException {
+        post("/api/revokeapp", RedditClientUtils.buildAppPostParameters(clientId, modhash, null));
     }
-
+    
     protected void setAppIcon() {
+        // TODO need new method to support file entities in post
         // POST /api/setappicon
     }
 
@@ -189,12 +201,12 @@ public class RedditClient {
     protected void postComment(String rawCommentText, String parentId, String modhash) throws HttpException, IOException {
         List<NameValuePair> requestBody = new LinkedList<NameValuePair>();
         requestBody.add(new NameValuePair("text", rawCommentText));
-        requestBody.addAll(Arrays.asList(HttpClientUtils.buildIdAndModHashParameters(parentId, modhash)));
+        requestBody.addAll(Arrays.asList(RedditClientUtils.buildIdAndModHashParameters(parentId, modhash)));
         post("/api/comment", requestBody.toArray(new NameValuePair[requestBody.size()]));
     }
 
     protected void deleteComment(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/del", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/del", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
     protected void editUserText() {
@@ -202,11 +214,11 @@ public class RedditClient {
     }
 
     protected void hide(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/hide", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/hide", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
     protected void unhide(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/unhide", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/unhide", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
     protected void info() {
@@ -215,11 +227,11 @@ public class RedditClient {
 
     // TODO there are several "do x"/"do the opposite of x" API calls here. Should our public API have one method in these cases that takes in a boolean parameter?
     protected void markNsfw(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/marknsfw", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/marknsfw", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
     protected void unmarkNsfw(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/unmarknsfw", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/unmarknsfw", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
     
     protected void moreChildren() {
@@ -227,15 +239,15 @@ public class RedditClient {
     }
 
     protected void report(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/report", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/report", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
     protected void save(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/save", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/save", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
     
     protected void unSave(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/unsave", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/unsave", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
 
     }
     
@@ -249,7 +261,7 @@ public class RedditClient {
         
         List<NameValuePair> requestBody = new LinkedList<NameValuePair>();
         requestBody.add(new NameValuePair("dir", voteDirection));
-        requestBody.addAll(Arrays.asList(HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash)));
+        requestBody.addAll(Arrays.asList(RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash)));
         post("/api/vote", requestBody.toArray(new NameValuePair[requestBody.size()]));
     }
 
@@ -281,7 +293,7 @@ public class RedditClient {
 
     // private messages
     protected void block(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/block", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/block", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
     protected void compose() {
@@ -289,11 +301,11 @@ public class RedditClient {
     }
 
     protected void readMessage(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/read_message", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/read_message", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
     protected void unreadMessage(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/unread_message", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/unread_message", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
     protected void getMessage() {
@@ -303,14 +315,14 @@ public class RedditClient {
     }
 
     // misc
-    protected void newCaptcha() {
-        // POST /api/new_captcha
+    protected void newCaptcha() throws HttpException, IOException {
+        post("/api/new_captcha", null);
     }
 
     // moderation
 
     protected void approve(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/approve", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/approve", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
     protected void distinguish() {
@@ -318,15 +330,15 @@ public class RedditClient {
     }
 
     protected void ignoreReports(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/ignore_reports", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/ignore_reports", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
     protected void leaveContributor(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/leavecontributor", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/leavecontributor", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
     protected void leaveModerator(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/leavemoderator", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/leavemoderator", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
     protected void remove() {
@@ -334,22 +346,23 @@ public class RedditClient {
     }
 
     protected void unignoreReports(String redditThingId, String modhash) throws HttpException, IOException {
-        post("/api/unignore_reports", HttpClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
+        post("/api/unignore_reports", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
     protected void getModerationLog() {
         // GET /moderationlog
     }
 
-    protected void getStylesheet() {
-        // GET /stylesheet
+    protected void getStylesheet(String subreddit) throws JsonParseException, JsonMappingException, HttpException, IOException {
+        // TODO this GET will almost certainly fail - method should return a string containing CSS, not a RedditThing
+        //return get(String.format("/r/%s/stylesheet", subreddit), null);
     }
 
     // search
     protected RedditThing search(SearchQuery query) throws JsonParseException, JsonMappingException, HttpException, IOException {
         // TODO swallow Json exceptions
         // TODO use /r/subredditname/search.json when limiting search to a subreddit
-        return get("/search.json", HttpClientUtils.buildSearchParameters(query));
+        return get("/search.json", RedditClientUtils.buildSearchParameters(query));
     }
 
     // subreddits
