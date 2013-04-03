@@ -43,8 +43,12 @@ public class RedditClient {
         this.httpClient = httpClient;
     }
 
-    private RedditThing get(String uri, NameValuePair[] queryParams) throws JsonParseException, JsonMappingException,
+    private RedditThing getRedditThing(String uri, NameValuePair[] queryParams) throws JsonParseException, JsonMappingException,
             HttpException, IOException {
+        return redditObjectMapper.readValue(get(uri, queryParams), RedditThing.class);
+    }
+    
+    private String get(String uri, NameValuePair[] queryParams) throws HttpException, IOException {
         HttpMethod method = null;
         String response = null;
         try {
@@ -55,7 +59,7 @@ public class RedditClient {
                 method.releaseConnection();
             }
         }
-        return redditObjectMapper.readValue(response, RedditThing.class);
+        return response;
     }
 
     private RedditThing post(String uri, NameValuePair[] requestBody)
@@ -81,7 +85,7 @@ public class RedditClient {
 
     public Subreddit getSubredditInfo(String subreddit) throws JsonParseException, JsonMappingException, HttpException,
         IOException {
-        return (Subreddit) get(String.format("/r/%s/about.json", subreddit), null).getData();
+        return (Subreddit) getRedditThing(String.format("/r/%s/about.json", subreddit), null).getData();
     }
 
     protected void clearSessions(String currentPassword, String destinationUrl, String modhash) throws HttpException,
@@ -98,7 +102,7 @@ public class RedditClient {
     protected RedditThing getInfoAboutMe() throws HttpException, IOException {
         // GET /api/me.json
         try {
-            return get("/api/me.json", null);
+            return getRedditThing("/api/me.json", null);
         } catch(JsonParseException e) {
             logger.error("Could not parse response", e);
         } catch (JsonMappingException e) {
@@ -117,7 +121,7 @@ public class RedditClient {
 
     protected RedditThing getOAuthIdentity() throws HttpException, IOException {
         try {
-            return get("/api/v1/me", null);
+            return getRedditThing("/api/v1/me", null);
         } catch (JsonParseException e) {
             logger.error("Could not parse response", e);
         } catch (JsonMappingException e) {
@@ -341,8 +345,11 @@ public class RedditClient {
         post("/api/leavemoderator", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
-    protected void remove() {
-        // POST /api/remove
+    protected void remove(String redditThingId, boolean markAsSpam, String modhash) throws HttpException, IOException {
+        List<NameValuePair> requestBody = new LinkedList<NameValuePair>();
+        requestBody.add(new NameValuePair("spam", Boolean.toString(markAsSpam)));
+        requestBody.addAll(Arrays.asList(RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash)));
+        post("/api/remove", requestBody.toArray(new NameValuePair[requestBody.size()]));
     }
 
     protected void unignoreReports(String redditThingId, String modhash) throws HttpException, IOException {
@@ -353,21 +360,22 @@ public class RedditClient {
         // GET /moderationlog
     }
 
-    protected void getStylesheet(String subreddit) throws JsonParseException, JsonMappingException, HttpException, IOException {
-        // TODO this GET will almost certainly fail - method should return a string containing CSS, not a RedditThing
-        //return get(String.format("/r/%s/stylesheet", subreddit), null);
+    protected String getStylesheet(String subreddit) throws JsonParseException, JsonMappingException, HttpException, IOException {
+        return get(String.format("/r/%s/stylesheet", subreddit), null);
     }
 
     // search
+    
     protected RedditThing search(SearchQuery query) throws JsonParseException, JsonMappingException, HttpException, IOException {
         // TODO swallow Json exceptions
         // TODO use /r/subredditname/search.json when limiting search to a subreddit
-        return get("/search.json", RedditClientUtils.buildSearchParameters(query));
+        return getRedditThing("/search.json", RedditClientUtils.buildSearchParameters(query));
     }
 
     // subreddits
-    protected void acceptModeratorInvite() {
-        // POST /api/accept_moderator_invite
+    
+    protected void acceptModeratorInvite(String modhash) throws HttpException, IOException {
+        post("/api/accept_moderator_invite", RedditClientUtils.buildIdAndModHashParameters(null, modhash));
     }
 
     protected void deleteSubredditHeader() {

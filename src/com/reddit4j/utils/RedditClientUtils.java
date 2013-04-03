@@ -9,8 +9,18 @@ import com.reddit4j.types.SearchQuery;
 
 public class RedditClientUtils {
 
+    public static final String NAME_PARAM = "name";
+    public static final String ID_PARAM = "id";
+    public static final String UH_PARAM = "uh";
+    public static final String CLIENT_ID_PARAM = "client_id";
+
     public static NameValuePair[] buildIdAndModHashParameters(String id, String modhash) {
-        return new NameValuePair[] { new NameValuePair("id", id), new NameValuePair("uh", modhash) };
+        NameValuePair uhParam = new NameValuePair(UH_PARAM, modhash);
+        if(id != null) {
+            return new NameValuePair[] {uhParam};
+        }
+        NameValuePair idParam = new NameValuePair(ID_PARAM, id);
+        return new NameValuePair[] {idParam, uhParam};
     }
 
     public static NameValuePair[] buildSearchParameters(SearchQuery query) {
@@ -49,10 +59,10 @@ public class RedditClientUtils {
     // TODO use entity to send file
     public static NameValuePair[] buildAppPostParameters(String clientId, String modhash, String username) {
         List<NameValuePair> pairs = new LinkedList<NameValuePair>();
-        pairs.add(new NameValuePair("client_id", clientId));
-        pairs.add(new NameValuePair("uh", modhash));
+        pairs.add(new NameValuePair(CLIENT_ID_PARAM, clientId));
+        pairs.add(new NameValuePair(UH_PARAM, modhash));
         if(username != null) {
-            pairs.add(new NameValuePair("name", username));
+            pairs.add(new NameValuePair(NAME_PARAM, username));
         }
         return pairs.toArray(new NameValuePair[pairs.size()]);
     }
