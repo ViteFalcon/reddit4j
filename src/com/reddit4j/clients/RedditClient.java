@@ -19,6 +19,7 @@ import com.reddit4j.json.RedditObjectMapper;
 import com.reddit4j.models.RedditThing;
 import com.reddit4j.models.Subreddit;
 import com.reddit4j.types.SearchQuery;
+import com.reddit4j.types.Vote;
 import com.reddit4j.utils.RedditClientUtils;
 
 public class RedditClient {
@@ -225,8 +226,9 @@ public class RedditClient {
         post("/api/unhide", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
-    protected void info() {
+    protected RedditThing info() {
         // GET /api/info
+        return null;
     }
 
     // TODO there are several "do x"/"do the opposite of x" API calls here. Should our public API have one method in these cases that takes in a boolean parameter?
@@ -260,11 +262,11 @@ public class RedditClient {
     }
 
     // TODO add note to user about votes, specifically that they must be done by a human
-    protected void vote(String voteDirection, String redditThingId, String modhash) throws HttpException, IOException {
+    protected void vote(Vote vote, String redditThingId, String modhash) throws HttpException, IOException {
         // ignoring vh parameter specified in official API
         
         List<NameValuePair> requestBody = new LinkedList<NameValuePair>();
-        requestBody.add(new NameValuePair("dir", voteDirection));
+        requestBody.add(new NameValuePair("dir", Integer.toString(vote.getIntValue())));
         requestBody.addAll(Arrays.asList(RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash)));
         post("/api/vote", requestBody.toArray(new NameValuePair[requestBody.size()]));
     }
@@ -394,14 +396,23 @@ public class RedditClient {
         // POST /api/subreddit_stylesheet
     }
 
-    protected void getSubredditsByTopic() {
-        // GET /api/subreddits_by_topic.json
+    protected Object getSubredditsByTopic(String query) throws HttpException, IOException {
+        //return 
+            //TODO API returns an array of hashes with only one value (subreddit name)
+        String s = get("/api/subreddits_by_topic.json", new NameValuePair[] { new NameValuePair("query", query) });
+        return s;
     }
 
-    protected void subscribe() {
+    protected void subscribe(String subreddit, String modhash) {
+        NameValuePair action = new NameValuePair("action", "sub");
         // POST /api/subscribe
     }
 
+    protected void unsubscribe(String subreddit, String modhash) {
+        NameValuePair action = new NameValuePair("action", "unsub");
+        // POST /api/subscribe
+    }
+    
     protected void uploadSubredditImage() {
         // POST /api/upload_sr_img
     }
@@ -435,8 +446,9 @@ public class RedditClient {
         // POST /api/unfriend
     }
 
-    protected void isUsernameAvailable() {
-        // GET /api/username_available.json
+    protected boolean isUsernameAvailable(String username) throws HttpException, IOException {
+        String response = get("/api/username_available.json", new NameValuePair[] {new NameValuePair("name", username) });
+        return Boolean.parseBoolean(response);
     }
 
     protected void getUserInfo() {
