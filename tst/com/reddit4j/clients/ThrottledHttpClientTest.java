@@ -14,7 +14,10 @@ import org.apache.http.HttpException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,5 +89,25 @@ public class ThrottledHttpClientTest {
     public void testGet_NullParams() throws HttpException, IOException {
         throttledHttpClient.get("test!", null);
         verify(mockHttpClient, times(1)).execute(any(HttpGet.class), eq(mockResponseHandler));
+    }
+
+    @Test
+    public void testGet_WithParams() throws HttpException, IOException {
+        HttpParams params = new BasicHttpParams();
+        throttledHttpClient.get("test!", params);
+        verify(mockHttpClient, times(1)).execute(any(HttpGet.class), eq(mockResponseHandler));
+    }
+
+    @Test
+    public void testPost_NullParams() throws HttpException, IOException {
+        throttledHttpClient.post("test!", null);
+        verify(mockHttpClient, times(1)).execute(any(HttpPost.class), eq(mockResponseHandler));
+    }
+
+    @Test
+    public void testPost_WithParams() throws HttpException, IOException {
+        HttpParams params = new BasicHttpParams();
+        throttledHttpClient.post("test!", params);
+        verify(mockHttpClient, times(1)).execute(any(HttpPost.class), eq(mockResponseHandler));
     }
 }

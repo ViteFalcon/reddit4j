@@ -97,7 +97,9 @@ public class ThrottledHttpClient {
      */
     protected String post(String uri, HttpParams params) throws ClientProtocolException, IOException {
         HttpPost postRequest = new HttpPost(uri);
-        postRequest.setParams(params);
+        if (params != null) {
+            postRequest.setParams(params);
+        }
         return execute(postRequest);
     }
 
