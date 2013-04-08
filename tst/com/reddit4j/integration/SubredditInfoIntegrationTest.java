@@ -3,6 +3,7 @@ package com.reddit4j.integration;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.apache.http.HttpException;
 import org.codehaus.jackson.JsonParseException;
@@ -22,14 +23,16 @@ public class SubredditInfoIntegrationTest {
      */
 
     @Test
-    public void testPublicDefault_Pics() throws JsonParseException, JsonMappingException, HttpException, IOException {
+    public void testPublicDefault_Pics() throws JsonParseException, JsonMappingException, HttpException, IOException,
+            URISyntaxException {
         Subreddit pics = client.getSubredditInfo("pics");
         assertEquals("/r/pics/", pics.getUrl());
         assertEquals("2qh0u", pics.getId());
     }
 
     @Test
-    public void testPublic_Java() throws JsonParseException, JsonMappingException, HttpException, IOException {
+    public void testPublic_Java() throws JsonParseException, JsonMappingException, HttpException, IOException,
+            URISyntaxException {
         Subreddit java = client.getSubredditInfo("java");
         assertEquals("/r/java/", java.getUrl());
         assertEquals("2qhd7", java.getId());

@@ -9,14 +9,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.HttpException;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.params.BasicHttpParams;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpParams;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -31,6 +35,8 @@ public class ThrottledHttpClientTest {
     private static final int REQUEST_LIMIT_PER_PERIOD = 2;
     private static final int REQUEST_LIMIT_TIME_PERIOD_MS = 1 * 1000;
     private static final String SUCCESS = "success!";
+    private static final String HOST = "example.com";
+    private static final String PATH = "/yay";
 
     @Mock
     private HttpClient mockHttpClient;
@@ -38,13 +44,16 @@ public class ThrottledHttpClientTest {
     @Mock
     private ResponseHandler<String> mockResponseHandler;
 
+    @Mock
+    private HttpParams mockHttpParams;
+
     private ThrottledHttpClient throttledHttpClient;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        throttledHttpClient = new ThrottledHttpClient(mockHttpClient, mockResponseHandler, REQUEST_LIMIT_PER_PERIOD,
-                REQUEST_LIMIT_TIME_PERIOD_MS);
+        throttledHttpClient = new ThrottledHttpClient(mockHttpClient, mockResponseHandler, mockHttpParams,
+                REQUEST_LIMIT_PER_PERIOD, REQUEST_LIMIT_TIME_PERIOD_MS);
     }
 
     @Test
@@ -86,28 +95,38 @@ public class ThrottledHttpClientTest {
     }
 
     @Test
-    public void testGet_NullParams() throws HttpException, IOException {
-        throttledHttpClient.get("test!", null);
+    public void testGet_NullParams() throws HttpException, IOException, URISyntaxException {
+        throttledHttpClient.get(false, HOST, PATH, null);
         verify(mockHttpClient, times(1)).execute(any(HttpGet.class), eq(mockResponseHandler));
     }
 
     @Test
-    public void testGet_WithParams() throws HttpException, IOException {
-        HttpParams params = new BasicHttpParams();
-        throttledHttpClient.get("test!", params);
+    public void testGet_WithParams() throws HttpException, IOException, URISyntaxException {
+        @SuppressWarnings("serial")
+        List<NameValuePair> params = new ArrayList<NameValuePair>() {
+            {
+                add(new BasicNameValuePair("param", "value"));
+            }
+        };
+        throttledHttpClient.get(false, HOST, PATH, params);
         verify(mockHttpClient, times(1)).execute(any(HttpGet.class), eq(mockResponseHandler));
     }
 
     @Test
-    public void testPost_NullParams() throws HttpException, IOException {
-        throttledHttpClient.post("test!", null);
+    public void testPost_NullParams() throws HttpException, IOException, URISyntaxException {
+        throttledHttpClient.post(true, HOST, PATH, null);
         verify(mockHttpClient, times(1)).execute(any(HttpPost.class), eq(mockResponseHandler));
     }
 
     @Test
-    public void testPost_WithParams() throws HttpException, IOException {
-        HttpParams params = new BasicHttpParams();
-        throttledHttpClient.post("test!", params);
+    public void testPost_WithParams() throws HttpException, IOException, URISyntaxException {
+        @SuppressWarnings("serial")
+        List<NameValuePair> params = new ArrayList<NameValuePair>() {
+            {
+                add(new BasicNameValuePair("param", "value"));
+            }
+        };
+        throttledHttpClient.post(false, HOST, PATH, params);
         verify(mockHttpClient, times(1)).execute(any(HttpPost.class), eq(mockResponseHandler));
     }
 }

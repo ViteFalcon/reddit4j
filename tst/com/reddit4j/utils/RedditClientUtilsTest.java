@@ -2,9 +2,12 @@ package com.reddit4j.utils;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.junit.Test;
 
 import com.reddit4j.types.SearchQuery;
@@ -18,12 +21,12 @@ public class RedditClientUtilsTest {
     public void testSearchQuery_success_basic() {
         SearchQuery query = new SearchQuery(TEST_QUERY);
         @SuppressWarnings("serial")
-        HttpParams expectedPairs = new BasicHttpParams() {
+        List<NameValuePair> expectedPairs = new ArrayList<NameValuePair>() {
             {
-                setParameter("q", TEST_QUERY);
+                add(new BasicNameValuePair("q", TEST_QUERY));
             }
         };
-        HttpParams actualPairs = RedditClientUtils.buildSearchParameters(query);
+        List<NameValuePair> actualPairs = RedditClientUtils.buildSearchParameters(query);
         assertTrue(EqualsBuilder.reflectionEquals(expectedPairs, actualPairs));
     }
 
@@ -33,27 +36,27 @@ public class RedditClientUtilsTest {
         query.setRestrictSubreddit(true);
         query.setSort(SortType.New);
         @SuppressWarnings("serial")
-        HttpParams expectedPairs = new BasicHttpParams() {
+        List<NameValuePair> expectedPairs = new ArrayList<NameValuePair>() {
             {
-                setParameter("q", TEST_QUERY);
-                setParameter("restrict_sr", "true");
-                setParameter("sort", "New");
+                add(new BasicNameValuePair("q", TEST_QUERY));
+                add(new BasicNameValuePair("restrict_sr", "true"));
+                add(new BasicNameValuePair("sort", "New"));
             }
         };
-        HttpParams actualPairs = RedditClientUtils.buildSearchParameters(query);
+        List<NameValuePair> actualPairs = RedditClientUtils.buildSearchParameters(query);
         assertTrue(EqualsBuilder.reflectionEquals(expectedPairs, actualPairs));
     }
 
     @Test
     public void testAppParamBuilder_success_basic() {
         @SuppressWarnings("serial")
-        HttpParams expectedPairs = new BasicHttpParams() {
+        List<NameValuePair> expectedPairs = new ArrayList<NameValuePair>() {
             {
-                setParameter("client_id", "testId");
-                setParameter("uh", "aoeuhtns");
+                add(new BasicNameValuePair("client_id", "testId"));
+                add(new BasicNameValuePair("uh", "aoeuhtns"));
             }
         };
-        HttpParams actualPairs = RedditClientUtils.buildAppPostParameters("testId", "aoeuhtns", null);
+        List<NameValuePair> actualPairs = RedditClientUtils.buildAppPostParameters("testId", "aoeuhtns", null);
         assertTrue(EqualsBuilder.reflectionEquals(expectedPairs, actualPairs));
     }
 
