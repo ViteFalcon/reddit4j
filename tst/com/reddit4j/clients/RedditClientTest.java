@@ -1,14 +1,16 @@
 package com.reddit4j.clients;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.HttpException;
+import org.apache.http.params.HttpParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -23,12 +25,6 @@ public class RedditClientTest {
     @Mock
     private ThrottledHttpClient mockThrottledHttpClient;
 
-    @Mock
-    private HttpMethod mockHttpMethod;
-    
-    @Mock
-    private PostMethod mockPostMethod;
-
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -37,18 +33,15 @@ public class RedditClientTest {
 
     @Test
     public void testGetSubredditInfo() throws HttpException, IOException {
-        when(mockThrottledHttpClient.get("/r/reddit4j/about.json", null)).thenReturn(mockHttpMethod);
-        when(mockHttpMethod.getResponseBodyAsString()).thenReturn("{\"data\":{\"public_description\":\"Yay!\"}}");
+        when(mockThrottledHttpClient.get("http://reddit.com/r/reddit4j/about.json", null)).thenReturn(
+                "{\"data\":{\"public_description\":\"Yay!\"}}");
         Subreddit subreddit = redditClient.getSubredditInfo("reddit4j");
         assertEquals("Yay!", subreddit.getPublicDescription());
-        verify(mockHttpMethod, times(1)).releaseConnection();
     }
-    
+
     @Test
     public void testPostComment() throws HttpException, IOException {
-        when(mockThrottledHttpClient.post(eq("/api/comment"), any(NameValuePair[].class))).thenReturn(mockPostMethod);
-        when(mockPostMethod.getResponseBodyAsString()).thenReturn("{\"data\":{}}");
         redditClient.postComment("this is a test comment", "test-parent-id", "modhash");
-        verify(mockPostMethod, times(1)).releaseConnection();
+        verify(mockThrottledHttpClient, times(1)).post(eq("http://reddit.com/api/comment"), any(HttpParams.class));
     }
 }

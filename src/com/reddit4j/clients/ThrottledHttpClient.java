@@ -4,13 +4,15 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +20,10 @@ import org.slf4j.LoggerFactory;
 import com.reddit4j.exceptions.ThrottlingException;
 
 /**
- * Number-of-requests-per-period throttling on HttpClient. Throws a {@code ThrottlingException} when too many requests
- * have been tried per period. The {@code ThrottlingException} contains the {@code DateTime} when the next request will
- * be allowed.
+ * Number-of-requests-per-period throttling on HttpClient. Throws a
+ * {@code ThrottlingException} when too many requests have been tried per
+ * period. The {@code ThrottlingException} contains the {@code DateTime} when
+ * the next request will be allowed.
  * 
  */
 public class ThrottledHttpClient {
@@ -30,12 +33,14 @@ public class ThrottledHttpClient {
 
     private Queue<DateTime> sentRequestTimestamps = new LinkedList<DateTime>();
     private HttpClient httpClient;
+    private ResponseHandler<String> responseHandler;
     private final int REQUEST_LIMIT_PER_PERIOD;
     private final int REQUEST_LIMIT_TIME_PERIOD_MS;
     private final Logger logger = LoggerFactory.getLogger(ThrottledHttpClient.class);
 
     public ThrottledHttpClient() {
-        this.httpClient = new HttpClient();
+        this.httpClient = new DefaultHttpClient();
+        this.responseHandler = new BasicResponseHandler();
         this.REQUEST_LIMIT_PER_PERIOD = DEFAULT_REQUEST_LIMIT_PER_PERIOD;
         this.REQUEST_LIMIT_TIME_PERIOD_MS = DEFAULT_REQUEST_LIMIT_TIME_PERIOD_MS;
     }
@@ -43,68 +48,64 @@ public class ThrottledHttpClient {
     /*
      * For unit testing
      */
-    protected ThrottledHttpClient(HttpClient httpClient, int requestLimit, int periodMs) {
+    protected ThrottledHttpClient(HttpClient httpClient, ResponseHandler<String> responseHandler, int requestLimit,
+            int periodMs) {
         this.httpClient = httpClient;
+        this.responseHandler = responseHandler;
         this.REQUEST_LIMIT_PER_PERIOD = requestLimit;
         this.REQUEST_LIMIT_TIME_PERIOD_MS = periodMs;
     }
 
-    public void setHostConfiguration(HostConfiguration hostConfiguration) {
-        httpClient.setHostConfiguration(hostConfiguration);
-    }
-
-    public int executeMethod(HttpMethod method) throws HttpException, IOException {
+    protected String execute(HttpUriRequest request) throws ClientProtocolException, IOException {
         drainQueue();
         if (sentRequestTimestamps.size() >= REQUEST_LIMIT_PER_PERIOD) {
             logger.info("Cannot make request, exceeds {} requests per {} ms", REQUEST_LIMIT_PER_PERIOD,
-                REQUEST_LIMIT_TIME_PERIOD_MS);
+                    REQUEST_LIMIT_TIME_PERIOD_MS);
             throw new ThrottlingException(sentRequestTimestamps.peek(), REQUEST_LIMIT_TIME_PERIOD_MS + 1);
         }
         sentRequestTimestamps.add(DateTime.now());
-        return httpClient.executeMethod(method);
+        return httpClient.execute(request, responseHandler);
     }
 
     /**
      * HTTP GET request
      * 
      * @param uri
-     * @return a HttpMethod object. Remember to call method.releaseConnection() when you're done!
-     * @throws HttpException
+     * @param params
+     * @return a String which is the Body of the request. This only works for
+     *         200 OK responses.
+     * @throws ClientProtocolException
      * @throws IOException
      */
-    public HttpMethod get(String uri, NameValuePair[] queryParams) throws HttpException, IOException {
-        HttpMethod method = new GetMethod(uri);
-        if (queryParams != null) {
-            method.setQueryString(queryParams);
+    protected String get(String uri, HttpParams params) throws ClientProtocolException, IOException {
+        HttpGet getRequest = new HttpGet(uri);
+        if (params != null) {
+            getRequest.setParams(params);
         }
-        executeMethod(method);
-        return method;
+        return execute(getRequest);
     }
 
     /**
      * HTTP POST request
      * 
      * @param uri
-     * @param requestBody
-     * @return a PostMethod object. Remember to call method.releaseConnection()
-     * @throws HttpException
+     * @param params
+     * @return a String which is the Body of the request. This only works for
+     *         200 OK responses.
+     * @throws ClientProtocolException
      * @throws IOException
      */
-    public PostMethod post(String uri, NameValuePair[] requestBody) throws HttpException, IOException {
-        PostMethod method = new PostMethod(uri);
-
-        if (requestBody != null) {
-            method.setRequestBody(requestBody);
-        }
-
-        executeMethod(method);
-        return method;
+    protected String post(String uri, HttpParams params) throws ClientProtocolException, IOException {
+        HttpPost postRequest = new HttpPost(uri);
+        postRequest.setParams(params);
+        return execute(postRequest);
     }
 
     /*
-     * When called, drain the queue of any messages older than REQUEST_LIMIT_TIME_PERIOD_MS
+     * When called, drain the queue of any messages older than
+     * REQUEST_LIMIT_TIME_PERIOD_MS
      */
-    private void drainQueue() {
+    private synchronized void drainQueue() {
         while (sentRequestTimestamps.size() > 0) {
             DateTime oldest = sentRequestTimestamps.peek();
             if (oldest == null || DateTime.now().compareTo(oldest.plusMillis(REQUEST_LIMIT_TIME_PERIOD_MS)) > 0) {
