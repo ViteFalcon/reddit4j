@@ -56,12 +56,15 @@
 		<javac srcdir="${tst.dir}" destdir="${classes.dir}" classpathref="ivy.path" />
 	</target>
 
+	<!-- Testing targets (unit and integration) -->
+
 	<target name="test" depends="test-compile">
 		<junit printsummary="yes" haltonfailure="false" failureproperty="test.failed">
 			<formatter type="plain" usefile="false" />
 			<batchtest fork="yes">
 				<fileset dir="${tst.dir}">
-					<include name="**/*Test*.java" />
+					<include name="**/*Test.java" />
+					<exclude name="**/*IntegrationTest.java" />
 				</fileset>
 			</batchtest>
 			<classpath>
@@ -71,6 +74,31 @@
 		</junit>
 		<fail if="test.failed" />
 	</target>
+
+	<target name="set-integration-test-fail-suppress">
+		<property name="integration.suppress" value="true" />
+	</target>
+
+	<target name="run-integration-test" depends="test-compile">
+		<junit printsummary="yes" haltonfailure="false" failureproperty="test.failed">
+			<formatter type="plain" usefile="false" />
+			<batchtest fork="yes">
+				<fileset dir="${tst.dir}">
+					<include name="**/*IntegrationTest.java" />
+				</fileset>
+			</batchtest>
+			<classpath>
+				<path refid="ivy.path" />
+				<pathelement location="${classes.dir}" />
+			</classpath>
+		</junit>
+
+		<fail if="test.failed" unless="integration.suppress" />
+	</target>
+
+
+	<target name="integration-test" depends="set-integration-test-fail-suppress, run-integration-test" />
+	<target name="integration-test-assert" depends="run-integration-test" />
 
 	<target name="doc" depends="resolve" description="--> generate documentation">
 		<mkdir dir="${doc.dir}" />
