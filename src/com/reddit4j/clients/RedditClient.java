@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.reddit4j.exceptions.Reddit4jException;
 import com.reddit4j.json.RedditObjectMapper;
+import com.reddit4j.models.Account;
 import com.reddit4j.models.RedditThing;
 import com.reddit4j.models.Subreddit;
 import com.reddit4j.types.SearchQuery;
@@ -485,16 +486,24 @@ public class RedditClient {
         return Boolean.parseBoolean(response);
     }
 
-    protected void getUserInfo() {
-        // GET /user/{username}/about.json
-        // GET /user/{username}/overview.json
-        // GET /user/{username}/submitted.json
-        // GET /user/{username}/comments.json
-        // GET /user/{username}/liked.json
-        // GET /user/{username}/disliked.json
-        // GET /user/{username}/hidden.json
-        // GET /user/{username}/saved.json
+    public Account getUserInfo(String username) throws IOException {
+        return (Account) getRedditThing(false, String.format("/user/%s/about.json", username), null).getData();
     }
+
+    // getOverview
+    // GET /user/{username}/overview.json
+    // getSubmissions
+    // GET /user/{username}/submitted.json
+    // getComments
+    // GET /user/{username}/comments.json
+    // getLiked
+    // GET /user/{username}/liked.json
+    // getDisliked
+    // GET /user/{username}/disliked.json
+    // getHidden
+    // GET /user/{username}/hidden.json
+    // getSaved
+    // GET /user/{username}/saved.json
 
     // wiki
     protected void allowEditor() {
