@@ -9,8 +9,6 @@ import org.apache.http.HttpException;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.slf4j.Logger;
@@ -414,9 +412,9 @@ public class RedditClient {
 
     protected void subscribe(String subreddit, String modhash) {
         @SuppressWarnings("serial")
-        HttpParams params = new BasicHttpParams() {
+        List<NameValuePair> params = new ArrayList<NameValuePair>() {
             {
-                setParameter("action", "sub");
+                add(new BasicNameValuePair("action", "sub"));
             }
         };
         // POST /api/subscribe
@@ -424,9 +422,9 @@ public class RedditClient {
 
     protected void unsubscribe(String subreddit, String modhash) {
         @SuppressWarnings("serial")
-        HttpParams params = new BasicHttpParams() {
+        List<NameValuePair> params = new ArrayList<NameValuePair>() {
             {
-                setParameter("action", "unsub");
+                add(new BasicNameValuePair("action", "unsub"));
             }
         };
         // POST /api/subscribe
