@@ -485,6 +485,13 @@ public class RedditClient {
         return Boolean.parseBoolean(response);
     }
 
+    /**
+     * Get user information
+     * 
+     * @param username
+     * @return Account object
+     * @throws IOException
+     */
     public Account getUserInfo(String username) throws IOException {
         return (Account) getRedditThing(false, String.format("/user/%s/about.json", username), null).getData();
     }
