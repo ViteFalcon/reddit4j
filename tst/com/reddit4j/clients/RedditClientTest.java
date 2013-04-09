@@ -2,6 +2,8 @@ package com.reddit4j.clients;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,11 +14,13 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import org.apache.http.HttpException;
+import org.apache.http.client.ClientProtocolException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.reddit4j.exceptions.Reddit4jException;
 import com.reddit4j.models.Subreddit;
 
 public class RedditClientTest {
@@ -40,10 +44,23 @@ public class RedditClientTest {
         assertEquals("Yay!", subreddit.getPublicDescription());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testPostComment() throws HttpException, IOException, URISyntaxException {
         redditClient.postComment("this is a test comment", "test-parent-id", "modhash");
         verify(mockThrottledHttpClient, times(1))
                 .post(eq(false), eq("reddit.com"), eq("/api/comment"), any(List.class));
     }
+
+    @SuppressWarnings("unchecked")
+    @Test(expected = Reddit4jException.class)
+    public void testGetSubredditInfo_ClientException() throws ClientProtocolException, URISyntaxException, IOException {
+        when(mockThrottledHttpClient.get(anyBoolean(), anyString(), anyString(), any(List.class))).thenThrow(
+                new ClientProtocolException());
+        redditClient.getSubredditInfo("fail");
+    }
+
+    // TODO: Test other exceptions. May require PowerMock-Mockito to spy on
+    // class members
+
 }
