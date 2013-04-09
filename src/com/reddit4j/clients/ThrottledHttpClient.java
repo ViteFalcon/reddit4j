@@ -50,12 +50,13 @@ public class ThrottledHttpClient {
     private final int REQUEST_LIMIT_TIME_PERIOD_MS;
     private final Logger logger = LoggerFactory.getLogger(ThrottledHttpClient.class);
 
-    public ThrottledHttpClient() {
+    public ThrottledHttpClient(String userAgent) {
         this.httpClient = new DefaultHttpClient();
         this.responseHandler = new BasicResponseHandler();
         this.httpParams = new SyncBasicHttpParams();
         this.REQUEST_LIMIT_PER_PERIOD = DEFAULT_REQUEST_LIMIT_PER_PERIOD;
         this.REQUEST_LIMIT_TIME_PERIOD_MS = DEFAULT_REQUEST_LIMIT_TIME_PERIOD_MS;
+        setUserAgent(userAgent);
     }
 
     /*

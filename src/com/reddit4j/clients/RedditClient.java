@@ -31,9 +31,8 @@ public class RedditClient {
 
     private final Logger logger = LoggerFactory.getLogger(RedditClient.class);
 
-    public RedditClient() {
-        // TODO set User-Agent string
-        httpClient = new ThrottledHttpClient();
+    public RedditClient(String userAgent) {
+        httpClient = new ThrottledHttpClient(userAgent);
     }
 
     public RedditClient(ThrottledHttpClient httpClient) {
