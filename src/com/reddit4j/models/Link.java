@@ -64,9 +64,23 @@ public class Link extends VotableCreated {
     @JsonProperty("num_reports")
     private int numReports;
 
-    protected void setEdited(Long seconds) {
-        if (seconds != null) {
-            this.edited = new DateTime(seconds * 1000, DateTimeZone.UTC);
+    /**
+     * "edited" field has special properties - it should either be the string
+     * "false" or the time of edit in seconds since the unix epoch
+     * 
+     * @see <a href="https://github.com/reddit/reddit/issues/581">reddit issue
+     *      #581</a>
+     * @param value
+     *            the string "false" or seconds since the unix epoch
+     */
+    protected void setEdited(String value) {
+        try {
+            Double seconds = Double.parseDouble(value);
+            if (seconds != null) {
+                this.edited = new DateTime((long) (seconds * 1000), DateTimeZone.UTC);
+            }
+        } catch (NumberFormatException e) {
+            edited = null;
         }
     }
 

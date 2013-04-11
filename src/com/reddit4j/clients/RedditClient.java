@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.reddit4j.exceptions.Reddit4jException;
 import com.reddit4j.json.RedditObjectMapper;
 import com.reddit4j.models.Account;
+import com.reddit4j.models.More;
 import com.reddit4j.models.RedditThing;
 import com.reddit4j.models.Subreddit;
 import com.reddit4j.types.SearchQuery;
@@ -496,10 +497,12 @@ public class RedditClient {
         return (Account) getRedditThing(false, String.format("/user/%s/about.json", username), null).getData();
     }
 
+    public More getUserSubmissions(String username) throws IOException {
+        return (More) getRedditThing(false, String.format("/user/%s/submitted.json", username), null).getData();
+    }
+
     // getOverview
     // GET /user/{username}/overview.json
-    // getSubmissions
-    // GET /user/{username}/submitted.json
     // getComments
     // GET /user/{username}/comments.json
     // getLiked
