@@ -1,6 +1,7 @@
 package com.reddit4j.integration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 
@@ -18,6 +19,11 @@ public class AccountIntegrationTest {
         Account jedberg = client.getUserInfo("jedberg");
         assertEquals("1wnj", jedberg.getId());
         assertEquals("jedberg", jedberg.getName());
+    }
+
+    @Test
+    public void testIsUsernameAvailable_jedberg() throws IOException {
+        assertFalse(client.isUsernameAvailable("jedberg"));
     }
 
 }

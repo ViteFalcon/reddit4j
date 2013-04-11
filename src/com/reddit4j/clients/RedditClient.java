@@ -463,7 +463,7 @@ public class RedditClient {
     }
 
     // users
-    protected void friend() {
+    protected void addFriend() {
         // POST /api/friend
     }
 
@@ -471,11 +471,11 @@ public class RedditClient {
         // POST /api/setpermissions
     }
 
-    protected void unfriend() {
+    protected void removeFriend() {
         // POST /api/unfriend
     }
 
-    protected boolean isUsernameAvailable(final String username) throws IOException {
+    public boolean isUsernameAvailable(final String username) throws IOException {
         @SuppressWarnings("serial")
         String response = get(false, "/api/username_available.json", new ArrayList<NameValuePair>() {
             {
@@ -516,7 +516,7 @@ public class RedditClient {
         // POST /api/wiki/alloweditor/:act
     }
 
-    protected void edit() {
+    protected void editWiki() {
         // POST /api/wiki/edit
     }
 
@@ -524,7 +524,7 @@ public class RedditClient {
         // POST /api/wiki/hide
     }
 
-    protected void revert() {
+    protected void revertWiki() {
         // POST /api/wiki/revert
     }
 }
