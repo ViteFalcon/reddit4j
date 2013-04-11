@@ -19,6 +19,7 @@ import com.reddit4j.models.Account;
 import com.reddit4j.models.More;
 import com.reddit4j.models.RedditThing;
 import com.reddit4j.models.Subreddit;
+import com.reddit4j.types.MessageFolder;
 import com.reddit4j.types.SearchQuery;
 import com.reddit4j.types.Vote;
 import com.reddit4j.utils.RedditClientUtils;
@@ -327,10 +328,11 @@ public class RedditClient {
         post(false, "/api/unread_message", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
-    protected void getMessage() {
-        // GET /message/inbox.json
-        // GET /message/unread.json
-        // GET /message/sent.json
+    protected RedditThing getMessages(MessageFolder folder) throws IOException {
+        if(folder == null) {
+            folder = MessageFolder.Inbox;
+        }
+        return getRedditThing(true, String.format("/message/%s.json", folder.getValue()), null);
     }
 
     // misc
