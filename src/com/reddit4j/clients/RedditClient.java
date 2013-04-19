@@ -329,7 +329,7 @@ public class RedditClient {
     }
 
     protected RedditThing getMessages(MessageFolder folder) throws IOException {
-        if(folder == null) {
+        if (folder == null) {
             folder = MessageFolder.Inbox;
         }
         return getRedditThing(true, String.format("/message/%s.json", folder.getValue()), null);
@@ -489,7 +489,7 @@ public class RedditClient {
     }
 
     /**
-     * Get user information
+     * Get information about a user account
      * 
      * @param username
      * @return Account object
@@ -499,14 +499,48 @@ public class RedditClient {
         return (Account) getRedditThing(false, String.format("/user/%s/about.json", username), null).getData();
     }
 
+    /**
+     * Get user submissions
+     * 
+     * TODO: Pagination, logged-in
+     * 
+     * @param username
+     * @return a <code>More</code> object with <code>Link</code> children
+     * @throws IOException
+     */
     public More getUserSubmissions(String username) throws IOException {
         return (More) getRedditThing(false, String.format("/user/%s/submitted.json", username), null).getData();
     }
 
-    // getOverview
-    // GET /user/{username}/overview.json
-    // getComments
-    // GET /user/{username}/comments.json
+    /**
+     * Get user overview. The overview includes both <code>Comment</code>s and
+     * <code>Link</code>s.
+     * 
+     * TODO: Pagination, logged-in
+     * 
+     * @param username
+     * @return a <code>More</code> object with children of either
+     *         <code>Comment</code> or <code>Link</code>
+     * @throws IOException
+     */
+    public More getUserOverview(String username) throws IOException {
+        return (More) getRedditThing(false, String.format("/user/%s/overview.json", username), null).getData();
+    }
+
+    /**
+     * Get comments from a user.
+     * 
+     * TODO: Pagination, logged-in
+     * 
+     * @param username
+     * @return a <code>More</code> object with <code>Comment</code> children
+     * @throws IOException
+     */
+    public More getUserComments(String username) throws IOException {
+        return (More) getRedditThing(false, String.format("/user/%s/comments.json", username), null).getData();
+    }
+
+    // The below calls will work better with an authenticated session
     // getLiked
     // GET /user/{username}/liked.json
     // getDisliked
