@@ -478,6 +478,13 @@ public class RedditClient {
         // POST /api/unfriend
     }
 
+    /**
+     * Check whether a username is available
+     * 
+     * @param username
+     * @return true when a username is not claimed
+     * @throws IOException
+     */
     public boolean isUsernameAvailable(final String username) throws IOException {
         @SuppressWarnings("serial")
         String response = get(false, "/api/username_available.json", new ArrayList<NameValuePair>() {
