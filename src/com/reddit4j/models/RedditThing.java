@@ -13,6 +13,7 @@ public class RedditThing {
 
     private String kind;
     private RedditObject data;
+    private String error;
 
     /**
      * @return an identifier denoting the object's type (e.g. "Listing", "more",
@@ -22,8 +23,23 @@ public class RedditThing {
         return kind;
     }
 
+    /**
+     * 
+     * @return the actual contents of a reddit response (why does reddit like to
+     *         encapsulate everything inside this container object?)
+     */
     public RedditObject getData() {
         return data;
+    }
+
+    /**
+     * When reddit returns an error, this field will be non-null and the other
+     * fields will be null.
+     * 
+     * @return (usually) null, otherwise reddit has an error
+     */
+    public String getError() {
+        return error;
     }
 
     @Override

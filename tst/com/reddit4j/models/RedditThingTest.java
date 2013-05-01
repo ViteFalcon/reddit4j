@@ -60,4 +60,13 @@ public class RedditThingTest {
         assertEquals(Account.class, mappedThing.getData().getClass());
         assertEquals(thing.toString(), mappedThing.toString());
     }
+
+    @Test
+    public void testError() throws JsonParseException, JsonMappingException, IOException {
+        String json = "{\"error\":\"message\"}";
+        RedditThing thing = mapper.readValue(json, RedditThing.class);
+        assertNull(thing.getData());
+        assertNull(thing.getKind());
+        assertEquals("message", thing.getError());
+    }
 }
