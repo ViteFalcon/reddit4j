@@ -26,7 +26,6 @@
 	</info>
 	<dependencies>
 		<dependency org="junit" name="junit" rev="4.11"/>
-		<dependency org="org.apache.ant" name="ant-junit" rev="1.8.4"/>
 		<dependency org="org.mockito" name="mockito-all" rev="1.9.5"/>
 		<dependency org="commons-lang" name="commons-lang" rev="2.0"/>
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.2.3"/>
