@@ -15,6 +15,7 @@ import org.codehaus.jackson.map.deser.std.StdDeserializer;
 import org.codehaus.jackson.node.ObjectNode;
 
 import com.reddit4j.models.Account;
+import com.reddit4j.models.AuthenticationResults;
 import com.reddit4j.models.Comment;
 import com.reddit4j.models.Link;
 import com.reddit4j.models.Message;
@@ -34,6 +35,7 @@ public class RedditObjectDeserializer extends StdDeserializer<RedditObject> {
             put("public_description", Subreddit.class);
             put("subject", Message.class);
             put("is_mod", Account.class);
+            put("cookie", AuthenticationResults.class);
         }
     };
 

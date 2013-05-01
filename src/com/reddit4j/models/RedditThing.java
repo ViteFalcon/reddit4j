@@ -4,6 +4,7 @@
 package com.reddit4j.models;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -13,7 +14,7 @@ public class RedditThing {
 
     private String kind;
     private RedditObject data;
-    private String error;
+    private List<List<String>> errors;
 
     /**
      * @return an identifier denoting the object's type (e.g. "Listing", "more",
@@ -38,8 +39,8 @@ public class RedditThing {
      * 
      * @return (usually) null, otherwise reddit has an error
      */
-    public String getError() {
-        return error;
+    public List<List<String>> getErrors() {
+        return errors;
     }
 
     @Override

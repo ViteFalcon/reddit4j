@@ -14,8 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.reddit4j.exceptions.Reddit4jException;
+import com.reddit4j.exceptions.RedditAuthenticationException;
 import com.reddit4j.json.RedditObjectMapper;
 import com.reddit4j.models.Account;
+import com.reddit4j.models.AuthenticationResults;
+import com.reddit4j.models.JsonContainer;
 import com.reddit4j.models.More;
 import com.reddit4j.models.RedditThing;
 import com.reddit4j.models.Subreddit;
@@ -26,7 +29,8 @@ import com.reddit4j.utils.RedditClientUtils;
 
 public class RedditClient {
 
-    public static final String DEFAULT_ENDPOINT = "reddit.com";
+    public static final String DEFAULT_REGULAR_ENDPOINT = "www.reddit.com";
+    public static final String DEFAULT_SECURE_ENDPOINT = "ssl.reddit.com";
 
     private final ThrottledHttpClient httpClient;
     private final RedditObjectMapper redditObjectMapper = RedditObjectMapper.getInstance();
@@ -55,7 +59,7 @@ public class RedditClient {
 
     private String get(boolean secure, String path, List<NameValuePair> queryParams) throws IOException {
         try {
-            return httpClient.get(secure, DEFAULT_ENDPOINT, path, queryParams);
+            return httpClient.get(secure, DEFAULT_REGULAR_ENDPOINT, path, queryParams);
         } catch (ClientProtocolException e) {
             logger.error("ClientProtocolException while GET {}", path, e);
             throw new Reddit4jException(e);
@@ -65,22 +69,10 @@ public class RedditClient {
         }
     }
 
-    private RedditThing post(boolean secure, String path, List<NameValuePair> queryParams) throws IOException {
-        String response;
+    private RedditThing postRedditThing(boolean secure, String path, List<NameValuePair> queryParams)
+            throws IOException {
         try {
-            response = httpClient.post(secure, DEFAULT_ENDPOINT, path, queryParams);
-        } catch (ClientProtocolException e) {
-            logger.error("ClientProtocolException while POST {}", path, e);
-            throw new Reddit4jException(e);
-        } catch (URISyntaxException e) {
-            logger.error("URISyntaxException while constructing URI to path {}", path, e);
-            throw new Reddit4jException(e);
-        }
-        if (response == null) {
-            return null;
-        }
-        try {
-            return redditObjectMapper.readValue(response, RedditThing.class);
+            return redditObjectMapper.readValue(post(secure, path, queryParams), RedditThing.class);
         } catch (JsonParseException e) {
             logger.error("Could not parse response to {}", path, e);
             throw new Reddit4jException(e);
@@ -88,6 +80,34 @@ public class RedditClient {
             logger.error("Could not map response to {} to an object", path, e);
             throw new Reddit4jException(e);
         }
+    }
+
+    private JsonContainer postJsonContainer(boolean secure, String path, List<NameValuePair> queryParams)
+            throws IOException {
+        try {
+            return redditObjectMapper.readValue(post(secure, path, queryParams), JsonContainer.class);
+        } catch (JsonParseException e) {
+            logger.error("Could not parse response to {}", path, e);
+            throw new Reddit4jException(e);
+        } catch (JsonMappingException e) {
+            logger.error("Could not map response to {} to an object", path, e);
+            throw new Reddit4jException(e);
+        }
+    }
+
+    private String post(boolean secure, String path, List<NameValuePair> queryParams) throws IOException {
+        String response;
+        try {
+            response = httpClient.post(secure, secure ? DEFAULT_SECURE_ENDPOINT : DEFAULT_REGULAR_ENDPOINT, path,
+                    queryParams);
+        } catch (ClientProtocolException e) {
+            logger.error("ClientProtocolException while POST {}", path, e);
+            throw new Reddit4jException(e);
+        } catch (URISyntaxException e) {
+            logger.error("URISyntaxException while constructing URI to path {}", path, e);
+            throw new Reddit4jException(e);
+        }
+        return response;
     }
 
     // All of the methods below here are Reddit's exposed APIs. Within this
@@ -124,6 +144,30 @@ public class RedditClient {
             logger.error("Could not map response to RedditThing object", e);
         }
         return null;
+    }
+
+    @SuppressWarnings("serial")
+    public AuthenticationResults login(final String username, final String password) throws IOException {
+        JsonContainer container = null;
+        container = postJsonContainer(true, "/api/login", new ArrayList<NameValuePair>() {
+            {
+                add(new BasicNameValuePair("user", username));
+                add(new BasicNameValuePair("passwd", password));
+                // this parameter is undocumented
+                add(new BasicNameValuePair("api_type", "json"));
+            }
+        });
+
+        if (container == null || container.getJson() == null) {
+            throw new Reddit4jException("reddit returned weird results when attempting to login for user " + username);
+        } else if (container.getJson().getErrors() != null) {
+            throw new RedditAuthenticationException(container.getJson().getErrors());
+        } else if (container.getJson().getData() == null
+                || container.getJson().getData().getClass() != AuthenticationResults.class) {
+            throw new Reddit4jException(
+                    "reddit returned a data field that does not appear to be an authentication result");
+        }
+        return (AuthenticationResults) container.getJson().getData();
     }
 
     protected void register() {

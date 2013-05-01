@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.reddit4j.models.Account;
+import com.reddit4j.models.AuthenticationResults;
 import com.reddit4j.models.Comment;
 import com.reddit4j.models.Link;
 import com.reddit4j.models.Message;
@@ -106,6 +107,13 @@ public class RedditObjectDeserializerTest {
         setFields("is_mod", "UNKNOWN_FIELD");
         deserializer.deserialize(mockJsonParser, mockDeserializationContext);
         verify(mockObjectMapper, times(1)).readValue(mockObjectNode, Account.class);
+    }
+
+    @Test
+    public void testAuthenticationResults() throws JsonProcessingException, IOException {
+        setFields("cookie");
+        deserializer.deserialize(mockJsonParser, mockDeserializationContext);
+        verify(mockObjectMapper, times(1)).readValue(mockObjectNode, AuthenticationResults.class);
     }
 
     private void setFields(final String... fields) {

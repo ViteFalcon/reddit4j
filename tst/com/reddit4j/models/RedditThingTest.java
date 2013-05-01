@@ -63,10 +63,10 @@ public class RedditThingTest {
 
     @Test
     public void testError() throws JsonParseException, JsonMappingException, IOException {
-        String json = "{\"error\":\"message\"}";
+        String json = "{\"errors\":[[\"message\"]]}";
         RedditThing thing = mapper.readValue(json, RedditThing.class);
         assertNull(thing.getData());
         assertNull(thing.getKind());
-        assertEquals("message", thing.getError());
+        assertEquals("message", thing.getErrors().get(0).get(0));
     }
 }

@@ -6,11 +6,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Properties;
 
 import org.junit.Test;
 
 import com.reddit4j.clients.RedditClient;
+import com.reddit4j.exceptions.RedditAuthenticationException;
 import com.reddit4j.models.Account;
+import com.reddit4j.models.AuthenticationResults;
 import com.reddit4j.models.Comment;
 import com.reddit4j.models.Link;
 import com.reddit4j.models.More;
@@ -19,6 +22,7 @@ import com.reddit4j.models.RedditThing;
 public class AccountIntegrationTest {
 
     private RedditClient client = IntegrationRuntime.getClient();
+    private Properties properties = IntegrationRuntime.getProperties();
 
     private static final String JEDBERG = "jedberg";
 
@@ -64,5 +68,20 @@ public class AccountIntegrationTest {
             assertEquals(Comment.class, thing.getData().getClass());
             assertEquals("jedberg", ((Comment) thing.getData()).getAuthor());
         }
+    }
+
+    @Test
+    public void testLogin() throws IOException {
+        AuthenticationResults result = client.login(properties.getProperty("username"),
+                properties.getProperty("password"));
+        assertNotNull(result.getModhash());
+        assertNotNull(result.getCookie());
+    }
+
+    @Test(expected = RedditAuthenticationException.class)
+    public void testLogin_failure() throws IOException {
+        String username = properties.getProperty("username");
+        String password = properties.getProperty("password");
+        client.login(username, password + username);
     }
 }

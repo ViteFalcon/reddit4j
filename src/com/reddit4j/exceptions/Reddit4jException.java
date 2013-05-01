@@ -7,4 +7,8 @@ public class Reddit4jException extends RuntimeException {
         super(e);
     }
 
+    public Reddit4jException(String message) {
+        super(message);
+    }
+
 }
