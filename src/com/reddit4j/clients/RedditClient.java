@@ -160,7 +160,7 @@ public class RedditClient {
 
         if (container == null || container.getJson() == null) {
             throw new Reddit4jException("reddit returned weird results when attempting to login for user " + username);
-        } else if (container.getJson().getErrors() != null) {
+        } else if (container.getJson().getErrors() != null && !container.getJson().getErrors().isEmpty()) {
             throw new RedditAuthenticationException(container.getJson().getErrors());
         } else if (container.getJson().getData() == null
                 || container.getJson().getData().getClass() != AuthenticationResults.class) {

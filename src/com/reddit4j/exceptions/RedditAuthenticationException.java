@@ -19,4 +19,15 @@ public class RedditAuthenticationException extends RuntimeException {
     public List<List<String>> getErrors() {
         return errors;
     }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (List<String> errorlist : errors) {
+            for (String error : errorlist) {
+                sb.append(error);
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
+    }
 }
