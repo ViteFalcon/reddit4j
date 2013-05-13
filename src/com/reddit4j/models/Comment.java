@@ -46,6 +46,9 @@ public class Comment extends VotableCreated {
     @JsonProperty("subreddit_id")
     private String subredditId;
 
+    @JsonProperty("score_hidden")
+    private Boolean scoreHidden;
+
     private RedditThing replies;
 
     private DistinguishedStatus distinguished;
@@ -167,5 +170,13 @@ public class Comment extends VotableCreated {
 
     public DistinguishedStatus getDistinguished() {
         return distinguished;
+    }
+
+    /**
+     * @return whether the score is hidden by the subreddit. If the score is
+     *         hidden, upvotes and downvotes will both be 0.
+     */
+    public Boolean getScoreHidden() {
+        return scoreHidden;
     }
 }
