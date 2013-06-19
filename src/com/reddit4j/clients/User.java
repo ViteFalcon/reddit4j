@@ -4,7 +4,6 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -44,11 +43,9 @@ public class User {
             credentials.setAuthenticationResults(client.login(credentials.getUsername(), credentials.getPassword(),
                     httpContext));
         }
-        for (Cookie cookie : cookieStore.getCookies()) {
-            System.out.println(cookie.getName() + " " + cookie.getValue());
-        }
     }
 
+    // TODO Return a real object here
     public String postComment(String parentId, String commentText) {
         return client.postComment(parentId, commentText, credentials.getModhash(), httpContext);
     }
