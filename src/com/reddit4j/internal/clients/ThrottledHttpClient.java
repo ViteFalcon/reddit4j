@@ -20,6 +20,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.SyncBasicHttpParams;
+import org.apache.http.protocol.HttpContext;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,17 +52,11 @@ public class ThrottledHttpClient {
     private final Logger logger = LoggerFactory.getLogger(ThrottledHttpClient.class);
 
     public ThrottledHttpClient(String userAgent) {
-        this.httpClient = new DefaultHttpClient();
-        this.responseHandler = new BasicResponseHandler();
-        this.httpParams = new SyncBasicHttpParams();
-        this.REQUEST_LIMIT_PER_PERIOD = DEFAULT_REQUEST_LIMIT_PER_PERIOD;
-        this.REQUEST_LIMIT_TIME_PERIOD_MS = DEFAULT_REQUEST_LIMIT_TIME_PERIOD_MS;
+        this(new DefaultHttpClient(), new BasicResponseHandler(), new SyncBasicHttpParams(),
+                DEFAULT_REQUEST_LIMIT_PER_PERIOD, DEFAULT_REQUEST_LIMIT_TIME_PERIOD_MS);
         setUserAgent(userAgent);
     }
 
-    /*
-     * For unit testing
-     */
     protected ThrottledHttpClient(HttpClient httpClient, ResponseHandler<String> responseHandler,
             HttpParams httpParams, int requestLimit, int periodMs) {
         this.httpClient = httpClient;
@@ -75,7 +70,8 @@ public class ThrottledHttpClient {
         httpParams.setParameter(CoreProtocolPNames.USER_AGENT, userAgent);
     }
 
-    protected String execute(HttpUriRequest request) throws ClientProtocolException, IOException {
+    protected String execute(HttpUriRequest request, HttpContext localContext) throws ClientProtocolException,
+            IOException {
         drainQueue();
         if (sentRequestTimestamps.size() >= REQUEST_LIMIT_PER_PERIOD) {
             logger.info("Cannot make request, exceeds {} requests per {} ms", REQUEST_LIMIT_PER_PERIOD,
@@ -85,6 +81,9 @@ public class ThrottledHttpClient {
         sentRequestTimestamps.add(DateTime.now());
         if (httpParams != null) {
             request.setParams(httpParams);
+        }
+        if (localContext != null) {
+            return httpClient.execute(request, responseHandler, localContext);
         }
         return httpClient.execute(request, responseHandler);
     }
@@ -116,7 +115,7 @@ public class ThrottledHttpClient {
             }
         }
         HttpGet getRequest = new HttpGet(builder.build());
-        return execute(getRequest);
+        return execute(getRequest, null);
     }
 
     /**
@@ -129,21 +128,34 @@ public class ThrottledHttpClient {
      *            - /something
      * @param formParams
      *            - POSTed parameters
+     * @param localContext
+     *            - HttpContext local to the request (Nullable)
      * @return a String which is the Body of the request. This only works for
      *         200 OK responses.
      * @throws URISyntaxException
      * @throws ClientProtocolException
      * @throws IOException
      */
-    protected String post(boolean secure, String host, String path, List<NameValuePair> formParams)
-            throws URISyntaxException, ClientProtocolException, IOException {
+    protected String post(boolean secure, String host, String path, List<NameValuePair> formParams,
+            HttpContext localContext) throws URISyntaxException, ClientProtocolException, IOException {
         URIBuilder builder = new URIBuilder().setScheme(secure ? SECURE_SCHEME : REGULAR_SCHEME).setHost(host)
                 .setPath(path);
         HttpPost postRequest = new HttpPost(builder.build());
         if (formParams != null) {
             postRequest.setEntity(new UrlEncodedFormEntity(formParams, DEFAULT_ENCODING));
         }
-        return execute(postRequest);
+
+        return execute(postRequest, localContext);
+    }
+
+    private String buildCookieString(List<NameValuePair> cookies) {
+        StringBuilder sb = new StringBuilder();
+        for (NameValuePair nvp : cookies) {
+            sb.append(nvp.getName());
+            sb.append("=");
+            sb.append(nvp.getValue());
+        }
+        return sb.toString();
     }
 
     /*

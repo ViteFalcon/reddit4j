@@ -11,7 +11,7 @@ import com.reddit4j.internal.models.Subreddit;
 
 public class SubredditInfoIntegrationTest {
 
-    private RedditClient client = IntegrationRuntime.getClient();
+    private RedditClient client = IntegrationRuntime.getRedditClient();
 
     /*
      * Since these are integration tests, we can only assert against values we

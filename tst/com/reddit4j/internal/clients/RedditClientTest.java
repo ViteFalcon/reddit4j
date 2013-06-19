@@ -18,6 +18,8 @@ import org.apache.http.HttpException;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -25,8 +27,6 @@ import org.mockito.MockitoAnnotations;
 
 import com.reddit4j.exceptions.Reddit4jException;
 import com.reddit4j.exceptions.RedditAuthenticationException;
-import com.reddit4j.internal.clients.RedditClient;
-import com.reddit4j.internal.clients.ThrottledHttpClient;
 import com.reddit4j.internal.models.AuthenticationResults;
 import com.reddit4j.internal.models.Subreddit;
 
@@ -54,9 +54,9 @@ public class RedditClientTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testPostComment() throws HttpException, IOException, URISyntaxException {
-        redditClient.postComment("this is a test comment", "test-parent-id", "modhash");
+        redditClient.postComment("this is a test comment", "test-parent-id", "modhash", null);
         verify(mockThrottledHttpClient, times(1)).post(eq(false), eq("www.reddit.com"), eq("/api/comment"),
-                any(List.class));
+                any(List.class), eq((HttpContext) null));
     }
 
     @SuppressWarnings("unchecked")
@@ -78,10 +78,11 @@ public class RedditClientTest {
                 add(new BasicNameValuePair("api_type", "json"));
             }
         };
-        when(mockThrottledHttpClient.post(eq(true), eq("ssl.reddit.com"), eq("/api/login"), eq(params))).thenReturn(
-                jsonAuthResults);
+        HttpContext context = new BasicHttpContext();
+        when(mockThrottledHttpClient.post(eq(true), eq("ssl.reddit.com"), eq("/api/login"), eq(params), eq(context)))
+                .thenReturn(jsonAuthResults);
 
-        AuthenticationResults result = redditClient.login("username", "password");
+        AuthenticationResults result = redditClient.login("username", "password", context);
         assertEquals("cookieval", result.getCookie());
     }
 
@@ -96,10 +97,11 @@ public class RedditClientTest {
                 add(new BasicNameValuePair("api_type", "json"));
             }
         };
-        when(mockThrottledHttpClient.post(eq(true), eq("ssl.reddit.com"), eq("/api/login"), eq(params))).thenReturn(
-                jsonAuthResults);
+        when(
+                mockThrottledHttpClient.post(eq(true), eq("ssl.reddit.com"), eq("/api/login"), eq(params),
+                        eq((HttpContext) null))).thenReturn(jsonAuthResults);
 
-        redditClient.login("username", "password");
+        redditClient.login("username", "password", null);
     }
 
     // TODO: Test other exceptions. May require PowerMock-Mockito to spy on

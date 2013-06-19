@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HttpContext;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.slf4j.Logger;
@@ -82,29 +83,39 @@ public class RedditClient {
         }
     }
 
-    private JsonContainer postJsonContainer(boolean secure, String path, List<NameValuePair> queryParams)
-            throws IOException {
+    private JsonContainer postJsonContainer(boolean secure, String path, List<NameValuePair> queryParams,
+            HttpContext localContext) {
         try {
-            return redditObjectMapper.readValue(post(secure, path, queryParams), JsonContainer.class);
+            return redditObjectMapper.readValue(post(secure, path, queryParams, localContext), JsonContainer.class);
         } catch (JsonParseException e) {
             logger.error("Could not parse response to {}", path, e);
             throw new Reddit4jException(e);
         } catch (JsonMappingException e) {
             logger.error("Could not map response to {} to an object", path, e);
             throw new Reddit4jException(e);
+        } catch (IOException e) {
+            logger.error("IOException while parsing response to {}", path, e);
+            throw new Reddit4jException(e);
         }
     }
 
-    private String post(boolean secure, String path, List<NameValuePair> queryParams) throws IOException {
+    private String post(boolean secure, String path, List<NameValuePair> queryParams) {
+        return post(secure, path, queryParams, null);
+    }
+
+    private String post(boolean secure, String path, List<NameValuePair> queryParams, HttpContext localContext) {
         String response;
         try {
             response = httpClient.post(secure, secure ? DEFAULT_SECURE_ENDPOINT : DEFAULT_REGULAR_ENDPOINT, path,
-                    queryParams);
+                    queryParams, localContext);
         } catch (ClientProtocolException e) {
             logger.error("ClientProtocolException while POST {}", path, e);
             throw new Reddit4jException(e);
         } catch (URISyntaxException e) {
             logger.error("URISyntaxException while constructing URI to path {}", path, e);
+            throw new Reddit4jException(e);
+        } catch (IOException e) {
+            logger.error("IOException while POST {}", path, e);
             throw new Reddit4jException(e);
         }
         return response;
@@ -147,7 +158,7 @@ public class RedditClient {
     }
 
     @SuppressWarnings("serial")
-    public AuthenticationResults login(final String username, final String password) throws IOException {
+    public AuthenticationResults login(final String username, final String password, HttpContext localContext) {
         JsonContainer container = null;
         container = postJsonContainer(true, "/api/login", new ArrayList<NameValuePair>() {
             {
@@ -156,7 +167,7 @@ public class RedditClient {
                 // this parameter is undocumented
                 add(new BasicNameValuePair("api_type", "json"));
             }
-        });
+        }, localContext);
 
         if (container == null || container.getJson() == null) {
             throw new Reddit4jException("reddit returned weird results when attempting to login for user " + username);
@@ -260,11 +271,14 @@ public class RedditClient {
     }
 
     // links and comments
-
-    protected void postComment(String rawCommentText, String parentId, String modhash) throws IOException {
-        List<NameValuePair> params = RedditClientUtils.buildIdAndModHashParameters(parentId, modhash);
+    // TODO: Make this return a real object instead of a String
+    // TODO: fix the parameters - parent and api_type
+    public String postComment(String parentId, String rawCommentText, String modhash, HttpContext localContext) {
+        List<NameValuePair> params = RedditClientUtils.buildIdAndModHashParameters(null, modhash);
         params.add(new BasicNameValuePair("text", rawCommentText));
-        post(false, "/api/comment", params);
+        params.add(new BasicNameValuePair("parent", parentId));
+        params.add(new BasicNameValuePair("api_type", "json"));
+        return post(false, "/api/comment", params, localContext);
     }
 
     protected void deleteComment(String redditThingId, String modhash) throws IOException {

@@ -25,6 +25,7 @@
         status="integration">
 	</info>
 	<dependencies>
+		<dependency org="javax" name="javaee-api" rev="6.0"/>
 		<dependency org="junit" name="junit" rev="4.11"/>
 		<dependency org="org.mockito" name="mockito-all" rev="1.9.5"/>
 		<dependency org="commons-lang" name="commons-lang" rev="2.0"/>

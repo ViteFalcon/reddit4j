@@ -22,6 +22,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +31,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.reddit4j.exceptions.ThrottlingException;
-import com.reddit4j.internal.clients.ThrottledHttpClient;
 
 public class ThrottledHttpClientTest {
 
@@ -60,14 +61,14 @@ public class ThrottledHttpClientTest {
     @Test
     public void testSingleRequest() throws HttpException, IOException {
         when(mockHttpClient.execute(any(HttpUriRequest.class), eq(mockResponseHandler))).thenReturn(SUCCESS);
-        assertEquals(SUCCESS, throttledHttpClient.execute(new HttpGet()));
+        assertEquals(SUCCESS, throttledHttpClient.execute(new HttpGet(), null));
     }
 
     @Test(expected = ThrottlingException.class)
     public void testLimitThrowsException() throws HttpException, IOException {
         when(mockHttpClient.execute(any(HttpUriRequest.class), eq(mockResponseHandler))).thenReturn(SUCCESS);
         for (int i = 0; i < REQUEST_LIMIT_PER_PERIOD + 1; i++) {
-            assertEquals(SUCCESS, throttledHttpClient.execute(new HttpGet()));
+            assertEquals(SUCCESS, throttledHttpClient.execute(new HttpGet(), null));
         }
     }
 
@@ -80,7 +81,7 @@ public class ThrottledHttpClientTest {
         for (int i = 0; i < REQUEST_LIMIT_PER_PERIOD * 3; i++) {
             try {
                 attempts++;
-                throttledHttpClient.execute(new HttpGet());
+                throttledHttpClient.execute(new HttpGet(), null);
                 success++;
             } catch (ThrottlingException te) {
                 long millis = te.getNextValid().getMillis() - DateTime.now().getMillis();
@@ -115,7 +116,7 @@ public class ThrottledHttpClientTest {
 
     @Test
     public void testPost_NullParams() throws HttpException, IOException, URISyntaxException {
-        throttledHttpClient.post(true, HOST, PATH, null);
+        throttledHttpClient.post(true, HOST, PATH, null, null);
         verify(mockHttpClient, times(1)).execute(any(HttpPost.class), eq(mockResponseHandler));
     }
 
@@ -127,7 +128,8 @@ public class ThrottledHttpClientTest {
                 add(new BasicNameValuePair("param", "value"));
             }
         };
-        throttledHttpClient.post(false, HOST, PATH, params);
-        verify(mockHttpClient, times(1)).execute(any(HttpPost.class), eq(mockResponseHandler));
+        HttpContext context = new BasicHttpContext();
+        throttledHttpClient.post(false, HOST, PATH, params, context);
+        verify(mockHttpClient, times(1)).execute(any(HttpPost.class), eq(mockResponseHandler), eq(context));
     }
 }

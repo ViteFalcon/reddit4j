@@ -21,7 +21,7 @@ import com.reddit4j.internal.models.RedditThing;
 
 public class AccountIntegrationTest {
 
-    private RedditClient client = IntegrationRuntime.getClient();
+    private RedditClient client = IntegrationRuntime.getRedditClient();
     private Properties properties = IntegrationRuntime.getProperties();
 
     private static final String JEDBERG = "jedberg";
@@ -73,7 +73,7 @@ public class AccountIntegrationTest {
     @Test
     public void testLogin() throws IOException {
         AuthenticationResults result = client.login(properties.getProperty("username"),
-                properties.getProperty("password"));
+                properties.getProperty("password"), null);
         assertNotNull(result.getModhash());
         assertNotNull(result.getCookie());
     }
@@ -82,6 +82,6 @@ public class AccountIntegrationTest {
     public void testLogin_failure() throws IOException {
         String username = properties.getProperty("username");
         String password = properties.getProperty("password");
-        client.login(username, password + username);
+        client.login(username, password + username, null);
     }
 }
