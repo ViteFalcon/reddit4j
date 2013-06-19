@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import com.reddit4j.clients.RedditClient;
+import com.reddit4j.internal.clients.RedditClient;
 
 public class IntegrationRuntime {
     private static RedditClient client;

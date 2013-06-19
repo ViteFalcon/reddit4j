@@ -6,8 +6,8 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import com.reddit4j.clients.RedditClient;
-import com.reddit4j.models.Subreddit;
+import com.reddit4j.internal.clients.RedditClient;
+import com.reddit4j.internal.models.Subreddit;
 
 public class SubredditInfoIntegrationTest {
 

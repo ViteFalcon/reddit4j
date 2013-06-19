@@ -10,14 +10,14 @@ import java.util.Properties;
 
 import org.junit.Test;
 
-import com.reddit4j.clients.RedditClient;
 import com.reddit4j.exceptions.RedditAuthenticationException;
-import com.reddit4j.models.Account;
-import com.reddit4j.models.AuthenticationResults;
-import com.reddit4j.models.Comment;
-import com.reddit4j.models.Link;
-import com.reddit4j.models.More;
-import com.reddit4j.models.RedditThing;
+import com.reddit4j.internal.clients.RedditClient;
+import com.reddit4j.internal.models.Account;
+import com.reddit4j.internal.models.AuthenticationResults;
+import com.reddit4j.internal.models.Comment;
+import com.reddit4j.internal.models.Link;
+import com.reddit4j.internal.models.More;
+import com.reddit4j.internal.models.RedditThing;
 
 public class AccountIntegrationTest {
 
