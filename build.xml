@@ -5,6 +5,7 @@
 	<property name="classes.dir" value="build/classes" />
 	<property name="src.dir" value="src" />
 	<property name="tst.dir" value="tst" />
+	<property name="src-delombok.dir" value="build/src-delombok" />
 	<property name="doc.dir" value="javadoc" />
 
 	<property name="jar.file" value="${build.dir}/${ant.project.name}.jar" />
@@ -25,7 +26,7 @@
 
 	<target name="release" depends="clean, init-ivy, resolve, compile, jar, test, doc" description="--> release this project">
 		<echo>
-			Release complete!  Jar: ${jar.file} 
+			Release complete!  Jar: ${jar.file}
 		</echo>
 	</target>
 
@@ -105,9 +106,15 @@
 	<target name="integration-test" depends="set-integration-test-fail-suppress, run-integration-test" />
 	<target name="integration-test-assert" depends="run-integration-test" />
 
-	<target name="doc" depends="resolve" description="--> generate documentation">
+	<target name="delombok" depends="resolve" description="Make lombok compile modifications visible to source-inspection tools">
+		<mkdir dir="${src-delombok.dir}" />
+		<taskdef classname="lombok.delombok.ant.DelombokTask" classpathref="ivy.path" name="delombok" />
+		<delombok verbose="true" encoding="UTF-8" to="${src-delombok.dir}" from="${src.dir}" />
+	</target>
+
+	<target name="doc" depends="resolve, delombok" description="--> generate documentation">
 		<mkdir dir="${doc.dir}" />
-		<javadoc sourcepath="${src.dir}" destdir="${doc.dir}" classpathref="ivy.path" />
+		<javadoc sourcepath="${src-delombok.dir}" destdir="${doc.dir}" classpathref="ivy.path" />
 	</target>
 
 
