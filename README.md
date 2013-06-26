@@ -10,8 +10,9 @@ Reddit4j is an unofficial Java library for the Reddit API.  Reddit4j is a work-i
 * Apache HttpComponents HttpClient
 * Apache Commons Lang
 * Jackson
-* Junit
-* Mockito
+* Junit (test dependency)
+* Lombok (build dependency)
+* Mockito (test dependency)
 * Slf4j
 
 ## Integration testing

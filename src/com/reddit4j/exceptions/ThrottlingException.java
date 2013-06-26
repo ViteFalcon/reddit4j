@@ -1,11 +1,15 @@
 package com.reddit4j.exceptions;
 
+import lombok.Getter;
+
 import org.joda.time.DateTime;
 
 public class ThrottlingException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
-    private final DateTime next;
+    private static final long serialVersionUID = -8892161793709566516L;
+
+    @Getter
+    private final DateTime nextValid;
 
     /**
      * 
@@ -15,11 +19,6 @@ public class ThrottlingException extends RuntimeException {
      *            - how long (in milliseconds) until the operation is safe again
      */
     public ThrottlingException(final DateTime prev, int throttleMs) {
-        this.next = prev.plusMillis(throttleMs);
+        this.nextValid = prev.plusMillis(throttleMs);
     }
-
-    public DateTime getNextValid() {
-        return next;
-    }
-
 }

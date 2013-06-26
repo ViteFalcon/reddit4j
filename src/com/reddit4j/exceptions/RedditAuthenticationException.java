@@ -2,6 +2,9 @@ package com.reddit4j.exceptions;
 
 import java.util.List;
 
+import lombok.ToString;
+
+@ToString
 public class RedditAuthenticationException extends RuntimeException {
     private static final long serialVersionUID = 7808052086050309635L;
 
@@ -20,14 +23,4 @@ public class RedditAuthenticationException extends RuntimeException {
         return errors;
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (List<String> errorlist : errors) {
-            for (String error : errorlist) {
-                sb.append(error);
-                sb.append("\n");
-            }
-        }
-        return sb.toString();
-    }
 }
