@@ -15,10 +15,6 @@ import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import com.reddit4j.internal.json.RedditObjectMapper;
-import com.reddit4j.internal.models.DistinguishedStatus;
-import com.reddit4j.internal.models.Link;
-import com.reddit4j.internal.models.RedditObject;
-import com.reddit4j.internal.models.RedditThing;
 
 public class LinkTest {
 
@@ -107,11 +103,12 @@ public class LinkTest {
     public void testLinkSerialization() throws JsonParseException, JsonMappingException, IOException {
         RedditThing thing = mapper.readValue(linkJson, RedditThing.class);
         Link link = (Link) thing.getData();
-        String mapperLinkJson = link.toString();
+        String mapperLinkJson = link.toJson();
         RedditObject mappedObject = mapper.readValue(mapperLinkJson, RedditObject.class);
         assertEquals(Link.class, mappedObject.getClass());
         Link mappedLink = (Link) mappedObject;
-        assertEquals(link.toString(), mappedLink.toString());
+        assertEquals(link.toJson(), mappedLink.toJson());
+        assertEquals(link, mappedLink);
     }
 
 }

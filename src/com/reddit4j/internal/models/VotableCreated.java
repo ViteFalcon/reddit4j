@@ -1,5 +1,10 @@
 package com.reddit4j.internal.models;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
 public abstract class VotableCreated extends Created implements VotableInterface {
 
     private int ups;
@@ -7,20 +12,4 @@ public abstract class VotableCreated extends Created implements VotableInterface
     private int downs;
 
     private Boolean likes;
-
-    @Override
-    public int getUps() {
-        return ups;
-    }
-
-    @Override
-    public int getDowns() {
-        return downs;
-    }
-
-    @Override
-    public Boolean getLikes() {
-        return likes;
-    }
-
 }

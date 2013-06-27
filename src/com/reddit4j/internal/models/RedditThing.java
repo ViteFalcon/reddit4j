@@ -6,23 +6,18 @@ package com.reddit4j.internal.models;
 import java.io.IOException;
 import java.util.List;
 
+import lombok.Data;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.reddit4j.internal.json.RedditObjectMapper;
 
+@Data
 public class RedditThing {
 
     private String kind;
     private RedditObject data;
     private List<List<String>> errors;
-
-    /**
-     * @return an identifier denoting the object's type (e.g. "Listing", "more",
-     *         "t1", "t2")
-     */
-    public String getKind() {
-        return kind;
-    }
 
     /**
      * 
@@ -43,8 +38,7 @@ public class RedditThing {
         return errors;
     }
 
-    @Override
-    public String toString() {
+    public String toJson() {
         RedditObjectMapper mapper = RedditObjectMapper.getInstance();
 
         try {

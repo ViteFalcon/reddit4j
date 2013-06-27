@@ -15,9 +15,6 @@ import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import com.reddit4j.internal.json.RedditObjectMapper;
-import com.reddit4j.internal.models.Message;
-import com.reddit4j.internal.models.RedditObject;
-import com.reddit4j.internal.models.RedditThing;
 
 public class MessageTest {
     String messageJson = "{\"kind\": \"t4\",\"data\": {\"body\": \"Thanks!\","
@@ -38,7 +35,7 @@ public class MessageTest {
         assertEquals(Message.class, thing.getData().getClass());
         Message message = (Message) thing.getData();
         assertEquals("Thanks!", message.getBody());
-        assertFalse(message.wasComment());
+        assertFalse(message.isWasComment());
         assertEquals(5678, message.getFirstMessage());
         assertEquals("t4_abcd", message.getName());
         assertEquals("t4_def", message.getFirstMessageName());
@@ -60,10 +57,11 @@ public class MessageTest {
     public void testMessageSerialization() throws JsonParseException, JsonMappingException, IOException {
         RedditThing thing = mapper.readValue(messageJson, RedditThing.class);
         Message message = (Message) thing.getData();
-        String mapperMessageJson = message.toString();
+        String mapperMessageJson = message.toJson();
         RedditObject mappedObject = mapper.readValue(mapperMessageJson, RedditObject.class);
         assertEquals(Message.class, mappedObject.getClass());
         Message mappedMessage = (Message) mappedObject;
-        assertEquals(message.toString(), mappedMessage.toString());
+        assertEquals(message.toJson(), mappedMessage.toJson());
+        assertEquals(message, mappedMessage);
     }
 }

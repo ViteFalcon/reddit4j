@@ -15,9 +15,6 @@ import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import com.reddit4j.internal.json.RedditObjectMapper;
-import com.reddit4j.internal.models.Account;
-import com.reddit4j.internal.models.RedditObject;
-import com.reddit4j.internal.models.RedditThing;
 
 public class AccountTest {
     private String accountJson = "{\"kind\": \"t2\", \"data\": {\"has_mail\": null, \"name\": \"jedberg\", \"is_fri"
@@ -32,7 +29,7 @@ public class AccountTest {
         RedditThing thing = mapper.readValue(accountJson, RedditThing.class);
         assertEquals(Account.class, thing.getData().getClass());
         Account account = (Account) thing.getData();
-        assertNull(account.hasMail());
+        assertNull(account.getHasMail());
         assertEquals("jedberg", account.getName());
         assertFalse(account.isFriend());
         assertEquals(new DateTime(2005, 8, 4, 5, 0, DateTimeZone.UTC), account.getCreated());
@@ -43,17 +40,17 @@ public class AccountTest {
         assertTrue(account.isGold());
         assertTrue(account.isMod());
         assertEquals("1wnj", account.getId());
-        assertNull(account.hasModMail());
+        assertNull(account.getHasModMail());
     }
 
     @Test
     public void testAccountSerialization() throws JsonParseException, JsonMappingException, IOException {
         RedditThing thing = mapper.readValue(accountJson, RedditThing.class);
         Account account = (Account) thing.getData();
-        String mapperAccountJson = account.toString();
+        String mapperAccountJson = account.toJson();
         RedditObject mappedObject = mapper.readValue(mapperAccountJson, RedditObject.class);
         assertEquals(Account.class, mappedObject.getClass());
         Account mappedAccount = (Account) mappedObject;
-        assertEquals(account.toString(), mappedAccount.toString());
+        assertEquals(account.toJson(), mappedAccount.toJson());
     }
 }

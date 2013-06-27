@@ -2,9 +2,11 @@ package com.reddit4j.exceptions;
 
 import java.util.List;
 
-import lombok.ToString;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-@ToString
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class RedditAuthenticationException extends RuntimeException {
     private static final long serialVersionUID = 7808052086050309635L;
 

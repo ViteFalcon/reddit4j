@@ -1,22 +1,17 @@
 package com.reddit4j.internal.models;
 
+import lombok.Data;
+import lombok.Delegate;
+
+@Data
 public class JsonContainer {
     /*
      * I heard you liked JSON so I put JSON inside your JSON so you can
      * deserialize while you deserialize.
-     */
-    private RedditThing json;
-
-    /**
-     * Don't ask me why reddit likes to contain the result inside {"json":{}}
      * 
-     * @return
+     * RedditThing's methods are delegated to JsonContainer, so they can be used
+     * directly.
      */
-    public RedditThing getJson() {
-        return json;
-    }
-
-    public void setJson(RedditThing thing) {
-        json = thing;
-    }
+    @Delegate
+    private RedditThing json;
 }

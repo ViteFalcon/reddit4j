@@ -11,9 +11,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 
 import com.reddit4j.internal.json.RedditObjectMapper;
-import com.reddit4j.internal.models.Account;
-import com.reddit4j.internal.models.More;
-import com.reddit4j.internal.models.RedditThing;
 
 public class RedditThingTest {
     private ObjectMapper mapper = RedditObjectMapper.getInstance();
@@ -57,11 +54,12 @@ public class RedditThingTest {
     public void testSerialization() throws JsonParseException, JsonMappingException, IOException {
         String json = "{\"kind\":\"KIND\",\"data\":{\"is_mod\":\"false\"}}";
         RedditThing thing = mapper.readValue(json, RedditThing.class);
-        String mapperThingJson = thing.toString();
+        String mapperThingJson = thing.toJson();
         RedditThing mappedThing = mapper.readValue(mapperThingJson, RedditThing.class);
         assertEquals(RedditThing.class, mappedThing.getClass());
         assertEquals(Account.class, mappedThing.getData().getClass());
-        assertEquals(thing.toString(), mappedThing.toString());
+        assertEquals(thing.toJson(), mappedThing.toJson());
+        assertEquals(thing, mappedThing);
     }
 
     @Test

@@ -2,11 +2,19 @@ package com.reddit4j.internal.models;
 
 import java.util.List;
 
+import lombok.Data;
+
+@Data
 public class RedditListing {
     private String before;
     private String after;
     private String modhash;
     private List<RedditThing> data;
+
+    /*
+     * Note: Getters were left manually specified, as the Javadoc is actually
+     * useful here.
+     */
 
     /**
      * @return The fullname of the listing that follows before this page. null

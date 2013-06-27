@@ -1,5 +1,7 @@
 package com.reddit4j.internal.models;
 
+import lombok.EqualsAndHashCode;
+
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
@@ -7,6 +9,7 @@ import org.joda.time.DateTimeZone;
 
 import com.reddit4j.internal.json.DateTimeLongSerializer;
 
+@EqualsAndHashCode(callSuper = true)
 public abstract class Created extends RedditObject implements CreatedInterface {
 
     @JsonProperty("created")

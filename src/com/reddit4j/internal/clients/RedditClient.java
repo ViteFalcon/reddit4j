@@ -5,14 +5,14 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.reddit4j.exceptions.Reddit4jException;
 import com.reddit4j.exceptions.RedditAuthenticationException;
@@ -28,6 +28,7 @@ import com.reddit4j.types.MessageFolder;
 import com.reddit4j.types.SearchQuery;
 import com.reddit4j.types.Vote;
 
+@Slf4j
 public class RedditClient {
 
     public static final String DEFAULT_REGULAR_ENDPOINT = "www.reddit.com";
@@ -35,8 +36,6 @@ public class RedditClient {
 
     private final ThrottledHttpClient httpClient;
     private final RedditObjectMapper redditObjectMapper = RedditObjectMapper.getInstance();
-
-    private final Logger logger = LoggerFactory.getLogger(RedditClient.class);
 
     public RedditClient(String userAgent) {
         httpClient = new ThrottledHttpClient(userAgent);
@@ -50,10 +49,10 @@ public class RedditClient {
         try {
             return redditObjectMapper.readValue(get(secure, path, queryParams), RedditThing.class);
         } catch (JsonParseException e) {
-            logger.error("Could not parse response to {}", path, e);
+            log.error("Could not parse response to {}", path, e);
             throw new Reddit4jException(e);
         } catch (JsonMappingException e) {
-            logger.error("Could not map response to {} to an object", path, e);
+            log.error("Could not map response to {} to an object", path, e);
             throw new Reddit4jException(e);
         }
     }
@@ -62,10 +61,10 @@ public class RedditClient {
         try {
             return httpClient.get(secure, DEFAULT_REGULAR_ENDPOINT, path, queryParams);
         } catch (ClientProtocolException e) {
-            logger.error("ClientProtocolException while GET {}", path, e);
+            log.error("ClientProtocolException while GET {}", path, e);
             throw new Reddit4jException(e);
         } catch (URISyntaxException e) {
-            logger.error("URISyntaxException while constructing URI to path {}", path, e);
+            log.error("URISyntaxException while constructing URI to path {}", path, e);
             throw new Reddit4jException(e);
         }
     }
@@ -75,10 +74,10 @@ public class RedditClient {
         try {
             return redditObjectMapper.readValue(post(secure, path, queryParams), RedditThing.class);
         } catch (JsonParseException e) {
-            logger.error("Could not parse response to {}", path, e);
+            log.error("Could not parse response to {}", path, e);
             throw new Reddit4jException(e);
         } catch (JsonMappingException e) {
-            logger.error("Could not map response to {} to an object", path, e);
+            log.error("Could not map response to {} to an object", path, e);
             throw new Reddit4jException(e);
         }
     }
@@ -88,13 +87,13 @@ public class RedditClient {
         try {
             return redditObjectMapper.readValue(post(secure, path, queryParams, localContext), JsonContainer.class);
         } catch (JsonParseException e) {
-            logger.error("Could not parse response to {}", path, e);
+            log.error("Could not parse response to {}", path, e);
             throw new Reddit4jException(e);
         } catch (JsonMappingException e) {
-            logger.error("Could not map response to {} to an object", path, e);
+            log.error("Could not map response to {} to an object", path, e);
             throw new Reddit4jException(e);
         } catch (IOException e) {
-            logger.error("IOException while parsing response to {}", path, e);
+            log.error("IOException while parsing response to {}", path, e);
             throw new Reddit4jException(e);
         }
     }
@@ -109,13 +108,13 @@ public class RedditClient {
             response = httpClient.post(secure, secure ? DEFAULT_SECURE_ENDPOINT : DEFAULT_REGULAR_ENDPOINT, path,
                     queryParams, localContext);
         } catch (ClientProtocolException e) {
-            logger.error("ClientProtocolException while POST {}", path, e);
+            log.error("ClientProtocolException while POST {}", path, e);
             throw new Reddit4jException(e);
         } catch (URISyntaxException e) {
-            logger.error("URISyntaxException while constructing URI to path {}", path, e);
+            log.error("URISyntaxException while constructing URI to path {}", path, e);
             throw new Reddit4jException(e);
         } catch (IOException e) {
-            logger.error("IOException while POST {}", path, e);
+            log.error("IOException while POST {}", path, e);
             throw new Reddit4jException(e);
         }
         return response;
@@ -150,9 +149,9 @@ public class RedditClient {
         try {
             return getRedditThing(false, "/api/me.json", null);
         } catch (JsonParseException e) {
-            logger.error("Could not parse response", e);
+            log.error("Could not parse response", e);
         } catch (JsonMappingException e) {
-            logger.error("Could not map response to RedditThing object", e);
+            log.error("Could not map response to RedditThing object", e);
         }
         return null;
     }
@@ -193,9 +192,9 @@ public class RedditClient {
         try {
             return getRedditThing(true, "/api/v1/me", null);
         } catch (JsonParseException e) {
-            logger.error("Could not parse response", e);
+            log.error("Could not parse response", e);
         } catch (JsonMappingException e) {
-            logger.error("Could not map response to RedditThing object", e);
+            log.error("Could not map response to RedditThing object", e);
         }
         return null;
     }

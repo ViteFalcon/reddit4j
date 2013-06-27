@@ -33,6 +33,9 @@ public class User {
      *            authenticated
      */
     protected User(@NotNull RedditClient client, @NotNull AuthenticationCredentials credentials) {
+        if (client == null || credentials == null) {
+            throw new NullPointerException("Cannot construct User object with null client or credentials.");
+        }
         this.client = client;
         this.credentials = credentials;
         this.httpContext = new BasicHttpContext();

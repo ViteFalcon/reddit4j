@@ -1,13 +1,14 @@
 package com.reddit4j.internal.models;
 
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class AuthenticationResults extends RedditObject {
 
-    @Getter
     private String modhash;
 
-    @Getter
     private String cookie;
 
 }

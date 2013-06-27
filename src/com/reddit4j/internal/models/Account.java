@@ -1,7 +1,12 @@
 package com.reddit4j.internal.models;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import org.codehaus.jackson.annotate.JsonProperty;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class Account extends Created {
     @JsonProperty("comment_karma")
     private int commentKarma;
@@ -32,88 +37,4 @@ public class Account extends Created {
 
     @JsonProperty("over_18")
     private boolean over18;
-
-    /**
-     * @return the user's comment karma
-     */
-    public int getCommentKarma() {
-        return commentKarma;
-    }
-
-    /**
-     * @return user has unread mail? null if not your account
-     */
-    public Boolean hasMail() {
-        return hasMail;
-    }
-
-    /**
-     * @return the user has unread mod mail? null if not your account
-     */
-    public Boolean hasModMail() {
-        return hasModMail;
-    }
-
-    /**
-     * @return the ID of the account; prepend t2_ to get fullname
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * @return whether the logged-in user has this user set as a friend
-     */
-    @JsonProperty("is_friend")
-    public boolean isFriend() {
-        return isFriend;
-    }
-
-    /**
-     * @return the reddit gold status
-     */
-    @JsonProperty("is_gold")
-    public boolean isGold() {
-        return isGold;
-    }
-
-    /**
-     * @return whether this account moderates any subreddits
-     */
-    @JsonProperty("is_mod")
-    public boolean isMod() {
-        return isMod;
-    }
-
-    /**
-     * @return the user's link karma
-     */
-    public int getLinkKarma() {
-        return linkKarma;
-    }
-
-    /**
-     * @return the current modhash. not present if not your account
-     */
-    public String getModhash() {
-        return modhash;
-    }
-
-    /**
-     * @return the The username of the account in question. This attribute
-     *         overrides the superclass's name attribute. Do not confuse an
-     *         account's name which is the account's username with a thing's
-     *         name which is the thing's FULLNAME. See API: Glossary for details
-     *         on what FULLNAMEs are.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @return the whether this account is set to be over 18
-     */
-    public boolean isOver18() {
-        return over18;
-    }
 }

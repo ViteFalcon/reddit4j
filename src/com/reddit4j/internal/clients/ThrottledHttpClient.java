@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -22,8 +24,6 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.reddit4j.exceptions.ThrottlingException;
 
@@ -34,6 +34,7 @@ import com.reddit4j.exceptions.ThrottlingException;
  * the next request will be allowed.
  * 
  */
+@Slf4j
 public class ThrottledHttpClient {
 
     public static final int DEFAULT_REQUEST_LIMIT_PER_PERIOD = 30;
@@ -49,7 +50,6 @@ public class ThrottledHttpClient {
     private HttpParams httpParams;
     private final int REQUEST_LIMIT_PER_PERIOD;
     private final int REQUEST_LIMIT_TIME_PERIOD_MS;
-    private final Logger logger = LoggerFactory.getLogger(ThrottledHttpClient.class);
 
     public ThrottledHttpClient(String userAgent) {
         this(new DefaultHttpClient(), new BasicResponseHandler(), new SyncBasicHttpParams(),
@@ -74,7 +74,7 @@ public class ThrottledHttpClient {
             IOException {
         drainQueue();
         if (sentRequestTimestamps.size() >= REQUEST_LIMIT_PER_PERIOD) {
-            logger.info("Cannot make request, exceeds {} requests per {} ms", REQUEST_LIMIT_PER_PERIOD,
+            log.info("Cannot make request, exceeds {} requests per {} ms", REQUEST_LIMIT_PER_PERIOD,
                     REQUEST_LIMIT_TIME_PERIOD_MS);
             throw new ThrottlingException(sentRequestTimestamps.peek(), REQUEST_LIMIT_TIME_PERIOD_MS + 1);
         }
@@ -146,16 +146,6 @@ public class ThrottledHttpClient {
         }
 
         return execute(postRequest, localContext);
-    }
-
-    private String buildCookieString(List<NameValuePair> cookies) {
-        StringBuilder sb = new StringBuilder();
-        for (NameValuePair nvp : cookies) {
-            sb.append(nvp.getName());
-            sb.append("=");
-            sb.append(nvp.getValue());
-        }
-        return sb.toString();
     }
 
     /*

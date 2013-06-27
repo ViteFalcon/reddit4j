@@ -11,10 +11,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 
 import com.reddit4j.internal.json.RedditObjectMapper;
-import com.reddit4j.internal.models.AuthenticationResults;
-import com.reddit4j.internal.models.JsonContainer;
-import com.reddit4j.internal.models.RedditObject;
-import com.reddit4j.internal.models.RedditThing;
 
 public class AuthenticationResultsTest {
     String authJson = "{\"json\":{\"data\":{\"modhash\":\"modhash value\",\"cookie\":\"cookie value\"}}}";
@@ -36,10 +32,11 @@ public class AuthenticationResultsTest {
         JsonContainer container = mapper.readValue(authJson, JsonContainer.class);
         RedditThing thing = container.getJson();
         AuthenticationResults auth = (AuthenticationResults) thing.getData();
-        String mapperAuthJson = auth.toString();
+        String mapperAuthJson = auth.toJson();
         RedditObject mappedObject = mapper.readValue(mapperAuthJson, RedditObject.class);
         assertEquals(AuthenticationResults.class, mappedObject.getClass());
         AuthenticationResults mappedAuth = (AuthenticationResults) mappedObject;
-        assertEquals(auth.toString(), mappedAuth.toString());
+        assertEquals(auth.toJson(), mappedAuth.toJson());
+        assertEquals(auth, mappedAuth);
     }
 }

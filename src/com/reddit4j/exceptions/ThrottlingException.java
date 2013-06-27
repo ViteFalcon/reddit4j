@@ -1,14 +1,16 @@
 package com.reddit4j.exceptions;
 
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import org.joda.time.DateTime;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class ThrottlingException extends RuntimeException {
 
     private static final long serialVersionUID = -8892161793709566516L;
 
-    @Getter
     private final DateTime nextValid;
 
     /**
