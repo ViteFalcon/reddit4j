@@ -45,7 +45,7 @@ public class RedditClientTest {
 
     @Test
     public void testGetSubredditInfo() throws HttpException, IOException, URISyntaxException {
-        when(mockThrottledHttpClient.get(false, "www.reddit.com", "/r/reddit4j/about.json", null)).thenReturn(
+        when(mockThrottledHttpClient.get(false, "www.reddit.com", "/r/reddit4j/about.json", null, null)).thenReturn(
                 "{\"data\":{\"public_description\":\"Yay!\"}}");
         Subreddit subreddit = redditClient.getSubredditInfo("reddit4j");
         assertEquals("Yay!", subreddit.getPublicDescription());
@@ -62,8 +62,9 @@ public class RedditClientTest {
     @SuppressWarnings("unchecked")
     @Test(expected = Reddit4jException.class)
     public void testGetSubredditInfo_ClientException() throws ClientProtocolException, URISyntaxException, IOException {
-        when(mockThrottledHttpClient.get(anyBoolean(), anyString(), anyString(), any(List.class))).thenThrow(
-                new ClientProtocolException());
+        when(
+                mockThrottledHttpClient.get(anyBoolean(), anyString(), anyString(), any(List.class),
+                        any(HttpContext.class))).thenThrow(new ClientProtocolException());
         redditClient.getSubredditInfo("fail");
     }
 

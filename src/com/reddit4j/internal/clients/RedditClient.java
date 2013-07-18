@@ -45,26 +45,39 @@ public class RedditClient {
         this.httpClient = httpClient;
     }
 
-    private RedditThing getRedditThing(boolean secure, String path, List<NameValuePair> queryParams) throws IOException {
+    private RedditThing getRedditThing(boolean secure, String path, List<NameValuePair> queryParams,
+            HttpContext localContext) {
+        return (RedditThing) getObject(secure, path, queryParams, localContext, RedditThing.class);
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private Object getObject(boolean secure, String path, List<NameValuePair> queryParams, HttpContext localContext,
+            Class clazz) {
         try {
-            return redditObjectMapper.readValue(get(secure, path, queryParams), RedditThing.class);
+            return redditObjectMapper.readValue(get(secure, path, queryParams, localContext), clazz);
         } catch (JsonParseException e) {
             log.error("Could not parse response to {}", path, e);
             throw new Reddit4jException(e);
         } catch (JsonMappingException e) {
             log.error("Could not map response to {} to an object", path, e);
             throw new Reddit4jException(e);
+        } catch (IOException e) {
+            log.error("IOException while parsing response to {}", path, e);
+            throw new Reddit4jException(e);
         }
     }
 
-    private String get(boolean secure, String path, List<NameValuePair> queryParams) throws IOException {
+    private String get(boolean secure, String path, List<NameValuePair> queryParams, HttpContext localContext) {
         try {
-            return httpClient.get(secure, DEFAULT_REGULAR_ENDPOINT, path, queryParams);
+            return httpClient.get(secure, DEFAULT_REGULAR_ENDPOINT, path, queryParams, localContext);
         } catch (ClientProtocolException e) {
             log.error("ClientProtocolException while GET {}", path, e);
             throw new Reddit4jException(e);
         } catch (URISyntaxException e) {
             log.error("URISyntaxException while constructing URI to path {}", path, e);
+            throw new Reddit4jException(e);
+        } catch (IOException e) {
+            log.error("IOException while GET {}", path, e);
             throw new Reddit4jException(e);
         }
     }
@@ -124,7 +137,7 @@ public class RedditClient {
     // library they should be accessed through layers of abstraction
 
     public Subreddit getSubredditInfo(String subreddit) throws IOException {
-        return (Subreddit) getRedditThing(false, String.format("/r/%s/about.json", subreddit), null).getData();
+        return (Subreddit) getRedditThing(false, String.format("/r/%s/about.json", subreddit), null, null).getData();
     }
 
     protected void clearSessions(final String currentPassword, final String destinationUrl, final String modhash)
@@ -144,16 +157,9 @@ public class RedditClient {
         // post /api/delete_user
     }
 
-    protected RedditThing getInfoAboutMe() throws IOException {
+    protected RedditThing getInfoAboutMe(HttpContext localContext) throws IOException {
         // GET /api/me.json
-        try {
-            return getRedditThing(false, "/api/me.json", null);
-        } catch (JsonParseException e) {
-            log.error("Could not parse response", e);
-        } catch (JsonMappingException e) {
-            log.error("Could not map response to RedditThing object", e);
-        }
-        return null;
+        return getRedditThing(false, "/api/me.json", null, localContext);
     }
 
     @SuppressWarnings("serial")
@@ -188,15 +194,8 @@ public class RedditClient {
         // POST /api/update
     }
 
-    protected RedditThing getOAuthIdentity() throws IOException {
-        try {
-            return getRedditThing(true, "/api/v1/me", null);
-        } catch (JsonParseException e) {
-            log.error("Could not parse response", e);
-        } catch (JsonMappingException e) {
-            log.error("Could not map response to RedditThing object", e);
-        }
-        return null;
+    protected RedditThing getOAuthIdentity(HttpContext localContext) throws IOException {
+        return getRedditThing(true, "/api/v1/me", null, localContext);
     }
 
     // apps
@@ -385,11 +384,11 @@ public class RedditClient {
         post(false, "/api/unread_message", RedditClientUtils.buildIdAndModHashParameters(redditThingId, modhash));
     }
 
-    protected RedditThing getMessages(MessageFolder folder) throws IOException {
+    public RedditThing getMessages(MessageFolder folder, String previous, int maximumDesired, HttpContext localContext) {
         if (folder == null) {
             folder = MessageFolder.Inbox;
         }
-        return getRedditThing(true, String.format("/message/%s.json", folder.getValue()), null);
+        return getRedditThing(false, String.format("/message/%s.json", folder.getValue()), null, localContext);
     }
 
     // misc
@@ -435,7 +434,7 @@ public class RedditClient {
     }
 
     protected String getStylesheet(String subreddit) throws IOException {
-        return get(false, String.format("/r/%s/stylesheet", subreddit), null);
+        return get(false, String.format("/r/%s/stylesheet", subreddit), null, null);
     }
 
     // search
@@ -444,7 +443,7 @@ public class RedditClient {
         // TODO swallow Json exceptions
         // TODO use /r/subredditname/search.json when limiting search to a
         // subreddit
-        return getRedditThing(false, "/search.json", RedditClientUtils.buildSearchParameters(query));
+        return getRedditThing(false, "/search.json", RedditClientUtils.buildSearchParameters(query), null);
     }
 
     // subreddits
@@ -478,7 +477,7 @@ public class RedditClient {
             {
                 add(new BasicNameValuePair("query", query));
             }
-        });
+        }, null);
         return s;
     }
 
@@ -548,7 +547,7 @@ public class RedditClient {
             {
                 add(new BasicNameValuePair("name", username));
             }
-        });
+        }, null);
         return Boolean.parseBoolean(response);
     }
 
@@ -560,7 +559,7 @@ public class RedditClient {
      * @throws IOException
      */
     public Account getUserInfo(String username) throws IOException {
-        return (Account) getRedditThing(false, String.format("/user/%s/about.json", username), null).getData();
+        return (Account) getRedditThing(false, String.format("/user/%s/about.json", username), null, null).getData();
     }
 
     /**
@@ -572,8 +571,9 @@ public class RedditClient {
      * @return a <code>More</code> object with <code>Link</code> children
      * @throws IOException
      */
-    public More getUserSubmissions(String username) throws IOException {
-        return (More) getRedditThing(false, String.format("/user/%s/submitted.json", username), null).getData();
+    public More getUserSubmissions(String username, HttpContext localContext) throws IOException {
+        return (More) getRedditThing(false, String.format("/user/%s/submitted.json", username), null, localContext)
+                .getData();
     }
 
     /**
@@ -587,8 +587,9 @@ public class RedditClient {
      *         <code>Comment</code> or <code>Link</code>
      * @throws IOException
      */
-    public More getUserOverview(String username) throws IOException {
-        return (More) getRedditThing(false, String.format("/user/%s/overview.json", username), null).getData();
+    public More getUserOverview(String username, HttpContext localContext) throws IOException {
+        return (More) getRedditThing(false, String.format("/user/%s/overview.json", username), null, localContext)
+                .getData();
     }
 
     /**
@@ -600,8 +601,9 @@ public class RedditClient {
      * @return a <code>More</code> object with <code>Comment</code> children
      * @throws IOException
      */
-    public More getUserComments(String username) throws IOException {
-        return (More) getRedditThing(false, String.format("/user/%s/comments.json", username), null).getData();
+    public More getUserComments(String username, HttpContext localContext) throws IOException {
+        return (More) getRedditThing(false, String.format("/user/%s/comments.json", username), null, localContext)
+                .getData();
     }
 
     // The below calls will work better with an authenticated session

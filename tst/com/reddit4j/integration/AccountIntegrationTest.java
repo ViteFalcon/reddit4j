@@ -40,7 +40,7 @@ public class AccountIntegrationTest {
 
     @Test
     public void testGetUserSubmissions_jedberg() throws IOException {
-        More submissions = client.getUserSubmissions(JEDBERG);
+        More submissions = client.getUserSubmissions(JEDBERG, null);
         assertNotNull(submissions.getChildren());
         assertTrue(submissions.getChildren().size() > 3);
         for (RedditThing thing : submissions.getChildren()) {
@@ -51,7 +51,7 @@ public class AccountIntegrationTest {
 
     @Test
     public void testGetUserOverview_jedberg() throws IOException {
-        More overviewEntries = client.getUserOverview(JEDBERG);
+        More overviewEntries = client.getUserOverview(JEDBERG, null);
         assertNotNull(overviewEntries.getChildren());
         assertTrue(overviewEntries.getChildren().size() > 3);
         for (RedditThing thing : overviewEntries.getChildren()) {
@@ -61,7 +61,7 @@ public class AccountIntegrationTest {
 
     @Test
     public void testGetUserComments_jedberg() throws IOException {
-        More comments = client.getUserComments(JEDBERG);
+        More comments = client.getUserComments(JEDBERG, null);
         assertNotNull(comments.getChildren());
         assertTrue(comments.getChildren().size() > 3);
         for (RedditThing thing : comments.getChildren()) {

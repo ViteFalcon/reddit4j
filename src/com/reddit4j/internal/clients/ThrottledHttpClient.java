@@ -105,8 +105,8 @@ public class ThrottledHttpClient {
      * @throws IOException
      * @throws ClientProtocolException
      */
-    protected String get(boolean secure, String host, String path, List<NameValuePair> formParams)
-            throws URISyntaxException, ClientProtocolException, IOException {
+    protected String get(boolean secure, String host, String path, List<NameValuePair> formParams,
+            HttpContext localContext) throws URISyntaxException, ClientProtocolException, IOException {
         URIBuilder builder = new URIBuilder().setScheme(secure ? SECURE_SCHEME : REGULAR_SCHEME).setHost(host)
                 .setPath(path);
         if (formParams != null) {
@@ -115,7 +115,7 @@ public class ThrottledHttpClient {
             }
         }
         HttpGet getRequest = new HttpGet(builder.build());
-        return execute(getRequest, null);
+        return execute(getRequest, localContext);
     }
 
     /**

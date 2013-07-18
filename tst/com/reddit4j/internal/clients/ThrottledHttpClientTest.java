@@ -98,8 +98,9 @@ public class ThrottledHttpClientTest {
 
     @Test
     public void testGet_NullParams() throws HttpException, IOException, URISyntaxException {
-        throttledHttpClient.get(false, HOST, PATH, null);
-        verify(mockHttpClient, times(1)).execute(any(HttpGet.class), eq(mockResponseHandler));
+        HttpContext context = new BasicHttpContext();
+        throttledHttpClient.get(false, HOST, PATH, null, context);
+        verify(mockHttpClient, times(1)).execute(any(HttpGet.class), eq(mockResponseHandler), eq(context));
     }
 
     @Test
@@ -110,8 +111,9 @@ public class ThrottledHttpClientTest {
                 add(new BasicNameValuePair("param", "value"));
             }
         };
-        throttledHttpClient.get(false, HOST, PATH, params);
-        verify(mockHttpClient, times(1)).execute(any(HttpGet.class), eq(mockResponseHandler));
+        HttpContext context = new BasicHttpContext();
+        throttledHttpClient.get(false, HOST, PATH, params, context);
+        verify(mockHttpClient, times(1)).execute(any(HttpGet.class), eq(mockResponseHandler), eq(context));
     }
 
     @Test
